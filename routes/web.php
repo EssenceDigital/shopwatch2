@@ -83,7 +83,7 @@ Route::get('/jobs/{id}', 'JobsController@get');
 */
 Route::post('/job-parts/create', 'JobPartsController@create');
 Route::post('/job-parts/update', 'JobPartsController@update');
-Route::delete('/job-parts/{id}/remove', 'JobPartsController@remove');
+Route::delete('/job-parts/{part_id}/{job_id}/remove', 'JobPartsController@remove');
 
 /*
  * Invoice routes

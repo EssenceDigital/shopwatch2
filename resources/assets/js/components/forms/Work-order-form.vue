@@ -3,7 +3,7 @@
 		:title="title"
 		:action="action"
 		:edit-state="editState"
-		:hide-button="editState"
+		:hide-save-button="hideSaveButton"
 		remove-action="removeWorkOrder"
 		:fields="form"
 		@saved="saved"
@@ -95,7 +95,7 @@
 	import VehicleForm from './Vehicle-form';
 
 	export default{
-		props: ['title', 'action', 'wo', 'editState'],
+		props: ['title', 'action', 'wo', 'editState', 'hideSaveButton'],
 
 		data (){
 			return {
@@ -160,7 +160,7 @@
 					this.vehicles = [];
 					this.form.vehicle_id.value = '';
 					// Toggle loader
-					this.searchingVehicles = false;					
+					this.searchingVehicles = false;
 				}
       },
 			vehicleSaved (id){

@@ -505,7 +505,7 @@ export const store = new Vuex.Store({
           select = [{ text: "Supplier...", value: "" }];
       // Create select array
       suppliers.forEach(function(supplier){
-        select.push({ text: supplier.name, value: supplier.id });
+        select.push({ text: supplier.name, value: supplier.name });
       });
       return select;
 		},

@@ -1,11 +1,13 @@
 <template>
-	<base-form 
-		:action="action" 
+	<base-form
+		:action="action"
 		remove-action="removeJobPart"
+		remove-key="job_id"
 		:edit-state="editState"
-		:fields="form" 
+		:fields="form"
 		@saved="saved"
 		@error="failed"
+		@close="saved"
 	>
 		<template slot="form-fields">
 			<v-layout row>
@@ -13,23 +15,23 @@
 					<!-- Supplier -->
 					<v-select
 		        :items="suppliersSelect"
-		        v-model="form.supplier_id.value"
-		        :error-messages="form.supplier_id.errors"
+		        v-model="form.supplier.value"
+		        :error-messages="form.supplier.errors"
 		        label="Supplier"
 		        single-line
-		        bottom
-      		></v-select>						
+		        menu-props="bottom"
+      		></v-select>
 				</v-flex>
 				<v-flex xs2 class="text-xs-right">
 					<v-tooltip top>
 				    <v-btn icon slot="activator" class="ml-4 mt-3" @click="addSupplierDialog = true">
 				      <v-icon color="green">add_circle_outline</v-icon>
-				    </v-btn>				
+				    </v-btn>
 			      <span>Add supplier</span>
-			    </v-tooltip>					
+			    </v-tooltip>
 				</v-flex>
 			</v-layout>
-		
+
 			<!-- Title -->
 			<v-text-field
 	      label="Title"
@@ -38,48 +40,40 @@
 	    ></v-text-field>
 			<!-- Part invoice number -->
 			<v-text-field
-	      label="Part invoice number"
-	 			v-model="form.part_invoice_number.value"
-	 			:error-messages="form.part_invoice_number.errors"
-	    ></v-text-field>	
+	      label="Part number"
+	 			v-model="form.part_number.value"
+	 			:error-messages="form.part_number.errors"
+	    ></v-text-field>
 			<!-- Billing price -->
 			<v-text-field
 	      label="Billing price"
 	 			v-model="form.billing_price.value"
 	 			:error-messages="form.billing_price.errors"
-	    ></v-text-field>						        
+	    ></v-text-field>
 			<!-- Cost -->
 			<v-text-field
 	      label="Cost"
 	 			v-model="form.total_cost.value"
 	 			:error-messages="form.total_cost.errors"
-	    ></v-text-field>		
+	    ></v-text-field>
 
 			<!-- Add supplier dialog -->
 			<v-dialog v-model="addSupplierDialog" persistent max-width="500px">
-	      <v-card>
-				 	<v-system-bar window class="blue darken-4">
-			      <v-spacer></v-spacer>
-						<v-tooltip top>
-				      <v-btn icon class="mr-0" slot="activator" @click="addSupplierDialog = false">
-				      	<v-icon class="white--text mr-0">close</v-icon>
-				      </v-btn>											
-				      <span>Close dialog</span>
-				    </v-tooltip>			      
-			    </v-system-bar>
-	        <v-card-text>
-	        	<supplier-form action="createSupplier" @saved="addSupplierDialog = false"></supplier-form>
-	        </v-card-text>
-	      </v-card>
-	    </v-dialog>		
-	        			    	    	    	    		    		
+
+	    	<supplier-form
+					action="createSupplier"
+					@saved="addSupplierDialog = false"
+				></supplier-form>
+
+	    </v-dialog>
+
 		</template>
 	</base-form>
 </template>
 
 <script>
 	import BaseForm from './_Base-form';
-	import Helpers from './../../app/helpers';	
+	import Helpers from './../../app/helpers';
 	import SupplierForm from './Supplier-form';
 
 	export default{
@@ -91,10 +85,10 @@
 					id: {value: '', errors: []},
 					job_id: {value: '', errors: []},
 					title: {value: '', errors: []},
-					part_invoice_number: {value: '', errors: []},
-					supplier_id: {value: '', errors: []},
+					part_number: {value: '', errors: []},
+					supplier: {value: '', errors: []},
 					total_cost: {value: '', errors: []},
-					billing_price: {value: '', errors: []}			
+					billing_price: {value: '', errors: []}
 				},
 				addSupplierDialog: false
 			}
@@ -130,7 +124,7 @@
 		methods: {
 			saved (){
 				if(! this.editState){
-					// Clear form 
+					// Clear form
 					Helpers.clearForm(this.form);
 				}
 				// Clear form errors
@@ -148,11 +142,11 @@
 			// Populate form with supplied part, if needed
 			if(this.part){
 				Helpers.populateForm(this.form, this.part);
-			}			
+			}
 			// Set job ID
 			if(this.job){
 				this.form.job_id.value = this.job;
-			}					
+			}
 		}
 	}
 </script>

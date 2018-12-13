@@ -12,7 +12,13 @@ class Job extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'work_order_id', 'tech', 'title', 'description', 'hours', 'tech_hourly_rate', 'shop_rate', 'is_complete', 'tech_pay_total', 'parts_total_cost', 'parts_total_billed', 'job_labour_total', 'job_grand_total'
+        'id', 'work_order_id', 'tech', 'title', 'description', 'hours', 'parts',
+        'tech_hourly_rate', 'shop_rate', 'is_complete', 'tech_pay_total',
+        'parts_total_cost', 'parts_total_billed', 'job_labour_total', 'job_grand_total'
+    ];
+
+    protected $casts = [
+        'parts' => 'array'
     ];
 
     /**
@@ -29,5 +35,5 @@ class Job extends Model
     public function parts()
     {
         return $this->hasMany('App\JobPart');
-    }     
+    }
 }

@@ -178,23 +178,6 @@
 							<job-row v-for="job in workOrder.jobs" :job="job" :key="job.id"></job-row>
 						</v-container>
 
-						<!-- Parts heading container -->
-						<v-container v-if="parts.length > 0" fluid class="pa-2">
-							<!-- Parts headings -->
-							<v-layout row class="red darken-4 mt-2">
-								<v-flex xs3>
-									<h3 class="white--text pa-2">PART INVOICE #</h3>
-								</v-flex>
-								<v-flex xs7>
-									<h3 class="white--text pa-2">PARTS</h3>
-								</v-flex>
-							</v-layout>
-
-
-							<part-row v-for="part in parts" :part="part" :key="part.id"></part-row>
-
-						</v-container>
-
 						<v-container fluid class="mt-5">
 							<v-layout row>
 								<v-flex xs12 class="text-xs-center">
@@ -212,63 +195,35 @@
 
 					<!-- Add job dialog -->
 					<v-dialog v-model="addJobDialog" persistent max-width="500px">
-		        <v-card>
-						 	<v-system-bar window class="blue darken-4">
-					      <v-spacer></v-spacer>
-								<v-tooltip top>
-						      <v-btn icon class="mr-0" slot="activator" @click="addJobDialog = false">
-						      	<v-icon class="white--text mr-0">close</v-icon>
-						      </v-btn>
-						      <span>Close dialog</span>
-						    </v-tooltip>
-					    </v-system-bar>
-		          <v-card-text>
-		          	<job-form action="createJob" :work-order="workOrder.id" @saved="addJobDialog = false"></job-form>
-		          </v-card-text>
-		        </v-card>
+		      	<job-form
+							action="createJob"
+							:work-order="workOrder.id"
+							@saved="addJobDialog = false"
+							@close="addJobDialog = false"
+						></job-form>
 		      </v-dialog>
 
 					<!-- WO options (edit) dialog -->
 					<v-dialog v-model="woOptionsDialog" persistent max-width="500px">
-		        <v-card>
-						 	<v-system-bar window class="blue darken-4">
-					      <v-spacer></v-spacer>
-								<v-tooltip top>
-						      <v-btn icon class="mr-0" slot="activator" @click="woOptionsDialog = false">
-						      	<v-icon class="white--text mr-0">close</v-icon>
-						      </v-btn>
-						      <span>Close dialog</span>
-						    </v-tooltip>
-					    </v-system-bar>
-		          <v-card-text>
-		          	<wo-form
-		          		:wo="workOrder"
-		          		:edit-state="true"
-		          		@saved="woOptionsDialog = false"
-		          		@removed="removed"
-		          	></wo-form>
-		          </v-card-text>
-		        </v-card>
+	        	<wo-form
+	        		:wo="workOrder"
+	        		:edit-state="true"
+							:hide-save-button="true"
+	        		@saved="woOptionsDialog = false"
+							@close="woOptionsDialog = false"
+	        		@removed="removed"
+	        	></wo-form>
 		      </v-dialog>
 
 			    <!-- Create invoice dialog -->
 			    <v-dialog v-model="confirmInvoiceDialog" persistent max-width="300px">
 			      <v-card>
-			        <v-system-bar window class="teal">
-			          <v-spacer></v-spacer>
-			          <v-tooltip top>
-			            <v-btn icon class="mr-0" slot="activator" @click="confirmInvoiceDialog = false">
-			              <v-icon class="white--text mr-0">close</v-icon>
-			            </v-btn>
-			            <span>Close dialog</span>
-			          </v-tooltip>
-			        </v-system-bar>
-			        <v-card-text>
+			        <v-card-text class="text-xs-center">
 			          Create invoice?
 			        </v-card-text>
 			        <v-card-actions>
 			        	<v-spacer></v-spacer>
-								<v-btn color="red darken-1" flat @click.native="confirmInvoiceDialog = false">Cancel</v-btn>
+								<v-btn flat @click.native="confirmInvoiceDialog = false">Cancel</v-btn>
 			          <v-btn color="green darken-1" flat :loading="invoiceCreating" @click.native="createInvoice">Yes</v-btn>
 			          <v-spacer></v-spacer>
 			        </v-card-actions>
@@ -328,9 +283,7 @@
 
 				this.workOrder.jobs.forEach((job) => {
 					if(job.parts.length > 0){
-						job.parts.forEach((part) => {
-							parts.push(part);
-						})
+							parts.push(job.parts);
 					}
 				});
 

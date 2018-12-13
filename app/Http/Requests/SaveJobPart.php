@@ -24,11 +24,11 @@ class SaveJobPart extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'numeric|nullable',
+            'id' => 'string|max:255|nullable',
             'job_id' => 'required|numeric',
-            'supplier_id' => 'required|numeric',
-            'title' => 'required|string|max:255',
-            'part_invoice_number' => 'required|string|max:255',
+            'supplier' => 'required|string|max:100',
+            'title' => 'required|string|max:100',
+            'part_number' => 'required|string|max:100',
             'total_cost' => 'required|numeric|between:0,1000000000000.99',
             'billing_price' => 'required|numeric|between:0,1000000000000.99'
         ];

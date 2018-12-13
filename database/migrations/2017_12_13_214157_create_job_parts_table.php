@@ -16,13 +16,11 @@ class CreateJobPartsTable extends Migration
         Schema::create('job_parts', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('job_id')->unsigned();
-            $table->foreign('job_id')->references('id')->on('jobs');
-            $table->integer('supplier_id')->unsigned();
-            $table->foreign('supplier_id')->references('id')->on('suppliers');
-            $table->string('title');
+            $table->string('title', 100);
+            $table->string('supplier', 25);
             $table->string('part_invoice_number')->nullable();
             $table->decimal('total_cost', 13, 3);
-            $table->decimal('billing_price', 13, 3);            
+            $table->decimal('billing_price', 13, 3);
             $table->timestamps();
         });
     }

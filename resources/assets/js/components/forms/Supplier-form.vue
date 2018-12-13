@@ -1,9 +1,10 @@
 <template>
-	<base-form 
-		:action="action" 
+	<base-form
+		:action="action"
 		:edit-state="editState"
-		:fields="form" 
+		:fields="form"
 		@saved="saved"
+		@close="saved"
 		@error="failed"
 	>
 		<template slot="form-fields">
@@ -12,14 +13,14 @@
 	      label="Supplier name"
 	 			v-model="form.name.value"
 	 			:error-messages="form.name.errors"
-	    ></v-text-field>	    	    	    	    	    		    		
+	    ></v-text-field>
 		</template>
 	</base-form>
 </template>
 
 <script>
 	import BaseForm from './_Base-form';
-	import Helpers from './../../app/helpers';	
+	import Helpers from './../../app/helpers';
 
 	export default{
 		props: ['action', 'supplier', 'editState'],
@@ -49,7 +50,7 @@
 		methods: {
 			saved (){
 				if(! this.editState){
-					// Clear form 
+					// Clear form
 					Helpers.clearForm(this.form);
 				}
 				// Clear form errors
@@ -67,7 +68,7 @@
 			// Populate form, if needed
 			if(this.supplier){
 				Helpers.populateForm(this.form, this.supplier);
-			}			
+			}
 		}
 	}
 </script>

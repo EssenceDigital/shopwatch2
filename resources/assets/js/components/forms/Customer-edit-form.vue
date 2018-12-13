@@ -1,6 +1,7 @@
-<template>
+<template v-if="customer">
 	<base-form
 		:title="title"
+		title-icon="info"
 		:action="action"
 		edit-state="true"
 		:single-button="singleButton"
@@ -104,6 +105,10 @@
 			failed (errors){
 				Helpers.populateFormErrors(this.form, errors);
 			}
+		},
+
+		created (){
+			Helpers.populateForm(this.form, this.customer);
 		}
 	}
 </script>

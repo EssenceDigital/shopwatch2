@@ -16,11 +16,12 @@
         hint="Type customer name"
         :items="customersSelect"
         label="Customer"
+				:disabled="editState"
         persistent-hint
         prepend-inner-icon="person"
 				append-outer-icon="person_add"
 				@click:append-outer="openCustomerDialog"
-				class="mb-2"
+				class="mb-3"
       >
       </v-autocomplete>
 			<!-- Make -->
@@ -126,15 +127,20 @@
 				this.addCustomerDialog = false;
 			},
 			close (){
-				// Clear form
-				Helpers.clearForm(this.form);
+				if(!this.editState){
+					// Clear form
+					Helpers.clearForm(this.form);
+
+				}
 				Helpers.clearFormErrors(this.form);
 				// Notify parent component
 				this.$emit('close');
 			},
 			saved (id){
-				// Clear form
-				Helpers.clearForm(this.form);
+				if(!this.editState){
+					// Clear form
+					Helpers.clearForm(this.form);
+				}
 				Helpers.clearFormErrors(this.form);
 				// Alert user to success
 				this.$router.app.$emit('snackbar', {

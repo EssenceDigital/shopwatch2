@@ -13,9 +13,9 @@ Use Auth;
 class WorkOrdersController extends Controller
 {
 
-	/** 
+	/**
 	 * Filters the work order table based on passed params.
-	 * 
+	 *
 	 * @return Json Collection
 	*/
 	public function filter($from_date = false, $to_date = false, $is_invoiced = false, $customer_id = false)
@@ -46,23 +46,21 @@ class WorkOrdersController extends Controller
 			$whereBetweenFields = [
 				'first' => ['field' => 'date', 'value' => $from_date],
 				'second' => ['field' => 'date', 'value' => $to_date]
-			];			
+			];
 		}
 
 		return $this->genericFilter(
 			WorkOrder::with([
-				'customer', 
-				'vehicle', 
-				'jobs', 
-				'jobs.parts', 
-				'jobs.parts.supplier'
-			])->orderBy('created_at', 'asc'), 
-			$whereFields, 
+				'customer',
+				'vehicle',
+				'jobs',
+			])->orderBy('created_at', 'asc'),
+			$whereFields,
 			$whereBetweenFields
-		);			
+		);
 	}
 
-	/** 
+	/**
 	 * Get a work order based on ID.
 	 *
 	 * @param $id - The ID of the work order
@@ -70,10 +68,10 @@ class WorkOrdersController extends Controller
 	*/
 	public function get($id)
 	{
-		return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($id);
+		return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($id);
 	}
 
-	/** 
+	/**
 	 * Get all work orders associated with the supplied customer ID
 	 *
 	 * @param $id - The ID of the customer
@@ -82,10 +80,10 @@ class WorkOrdersController extends Controller
 	public function getCustomers($id)
 	{
 		// Get all work orders first
-		return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->where('customer_id', $id)->get();		
+		return WorkOrder::with(['customer', 'vehicle', 'jobs'])->where('customer_id', $id)->get();
 	}
 
-	/** 
+	/**
 	 * Get all work orders associated with the supplied vehicle ID
 	 *
 	 * @param $id - The ID of the vehicle
@@ -93,13 +91,13 @@ class WorkOrdersController extends Controller
 	*/
 	public function getVehicles($id)
 	{
-		return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->where('vehicle_id', $id)->get();
+		return WorkOrder::with(['customer', 'vehicle', 'jobs'])->where('vehicle_id', $id)->get();
 	}
 
-	/** 
+	/**
 	 * Create a new work order in the db associated with a vehicle.
 	 *
-	 * @param $request - SaveWorkOrder custom request 
+	 * @param $request - SaveWorkOrder custom request
 	 * @return Json App\WorkOrder - The created work order
 	*/
     public function create(SaveWorkOrder $request)
@@ -115,15 +113,15 @@ class WorkOrdersController extends Controller
     	// Save WO
     	$wo = $this->genericSave(New WorkOrder, $request);
     	// Load relationships
-    	$wo->load('customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier');
+    	$wo->load('customer', 'vehicle', 'jobs');
 
     	return $wo;
     }
 
-	/** 
+	/**
 	 * Removes a work order from the db.
 	 *
-	 * @param $id The id of the work order to remove 
+	 * @param $id The id of the work order to remove
 	 * @return Int - The id of the removed work order
 	*/
     public function remove($id)
@@ -137,9 +135,9 @@ class WorkOrdersController extends Controller
 	        return response()->json([
 	            'result' => 'error',
 	            'message' => 'This work order has been closed (invoiced) or there are jobs associated with it and cannot be removed.'
-	        ], 422);      		
+	        ], 422);
     	}
 
-    	return $this->genericRemove($wo);    	
+    	return $this->genericRemove($wo);
     }
 }

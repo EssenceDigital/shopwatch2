@@ -17,6 +17,11 @@
 				:customer="customer"
 			></customer-edit-form>
 
+			<vehicles-table
+				:vehicles="customer.vehicles"
+				class="mt-5"
+			></vehicles-table>
+
 			<open-work-orders
 				:filter="workOrdersFilter"
 				class="mt-5"
@@ -30,6 +35,7 @@
 	import Layout from './_Layout';
 	import CustomerEditForm from './../components/forms/Customer-edit-form';
 	import OpenWorkOrders from './../components/iterators/Open-work-orders';
+	import VehiclesTable from './../components/tables/Vehicles-table';
 
 	export default{
 		props: ['id'],
@@ -54,7 +60,8 @@
 		components: {
 			'layout': Layout,
 			'customer-edit-form': CustomerEditForm,
-			'open-work-orders': OpenWorkOrders
+			'open-work-orders': OpenWorkOrders,
+			'vehicles-table': VehiclesTable
 		},
 
 		created (){

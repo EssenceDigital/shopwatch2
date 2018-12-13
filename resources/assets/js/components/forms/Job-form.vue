@@ -1,11 +1,12 @@
 <template>
-	<base-form 
-		:action="action" 
+	<base-form
+		:action="action"
 		remove-action="removeJob"
 		:edit-state="editState"
-		:fields="form" 
+		:fields="form"
 		@saved="saved"
 		@error="failed"
+		@close="saved"
 	>
 		<template slot="form-fields">
 			<!-- Title -->
@@ -15,12 +16,11 @@
 	 			:error-messages="form.title.errors"
 	    ></v-text-field>
 			<!-- Description -->
-			<v-text-field
+			<v-textarea
 	      label="Description"
 	 			v-model="form.description.value"
 	 			:error-messages="form.description.errors"
-	 			multi-line
-	    ></v-text-field>	    
+	    ></v-textarea>
 	    <!-- Hours -->
 	    <v-flex xs2>
 				<v-text-field
@@ -30,7 +30,7 @@
 		      label="Hours"
 		 			v-model="form.hours.value"
 		 			:error-messages="form.hours.errors"
-		    ></v-text-field>		    	
+		    ></v-text-field>
 	    </v-flex>
 			<!-- Tech -->
 			<v-select
@@ -39,15 +39,15 @@
         :error-messages="form.tech.errors"
         label="Tech"
         single-line
-        bottom
-      ></v-select>	         	    	    	    		    		
+        menu-props="bottom"
+      ></v-select>
 		</template>
 	</base-form>
 </template>
 
 <script>
 	import BaseForm from './_Base-form';
-	import Helpers from './../../app/helpers';	
+	import Helpers from './../../app/helpers';
 
 	export default{
 		props: ['action', 'job', 'workOrder', 'editState'],
@@ -96,9 +96,10 @@
 		},
 
 		methods: {
+
 			saved (){
 				if(! this.editState){
-					// Clear form 
+					// Clear form
 					Helpers.clearForm(this.form);
 				}
 				// Clear form errors
@@ -116,11 +117,11 @@
 			// Populate form with supplied job, if needed
 			if(this.job){
 				Helpers.populateForm(this.form, this.job);
-			}			
+			}
 			// Set WO ID
 			if(this.workOrder){
 				this.form.work_order_id.value = this.workOrder;
-			}					
+			}
 		}
 	}
 </script>

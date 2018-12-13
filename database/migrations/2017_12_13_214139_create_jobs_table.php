@@ -20,6 +20,7 @@ class CreateJobsTable extends Migration
             $table->string('tech', 50);
             $table->string('title', 100);
             $table->string('description')->nullable();
+            $table->json('parts')->nullable();
             $table->decimal('hours', 13, 1)->default(0.0);
             $table->decimal('shop_rate', 13, 3)->default(0.000);
             $table->decimal('tech_hourly_rate', 13, 3)->default(0.000);
@@ -28,7 +29,7 @@ class CreateJobsTable extends Migration
             $table->decimal('job_labour_total', 13, 3)->default(0.000);
             $table->decimal('parts_total_cost', 13, 3)->default(0.000);
             $table->decimal('parts_total_billed', 13, 3)->default(0.000);
-            $table->decimal('job_grand_total', 13, 3)->default(0.000);            
+            $table->decimal('job_grand_total', 13, 3)->default(0.000);
             $table->timestamps();
         });
     }

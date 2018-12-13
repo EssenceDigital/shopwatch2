@@ -39,7 +39,7 @@ class Controller extends BaseController
 	        return response()->json([
 	            'result' => 'error',
 	            'message' => 'Problem storing record.'
-	        ], 422)->send();      		
+	        ], 422)->send();
     	}
 
     	return $model;
@@ -67,15 +67,15 @@ class Controller extends BaseController
 	    // If there are where between fields to be added to the query
 	    if($whereBetweenFields){
 	    	$query->whereBetween(
-	    		$whereBetweenFields['first']['field'], 
+	    		$whereBetweenFields['first']['field'],
 	    		[$whereBetweenFields['first']['value'], $whereBetweenFields['second']['value']]
 	    	);
 	    }
 
 	    // Now find the collection
-	    $collection = $query->get();  
+	    $collection = $query->get();
 
-	    return $collection; 	
+	    return $collection;
     }
 
     protected function genericRemove($model, $beforeRemove = null, $afterRemove = null)
@@ -95,14 +95,14 @@ class Controller extends BaseController
 	        return response()->json([
 	            'result' => 'error',
 	            'message' => 'Problem removing record.'
-	        ], 422)->send();      		
+	        ], 422)->send();
     	}
 
     	// Check if the after remove function should run
     	if(is_callable($afterRemove)){
     		// Run after remove function
     		call_user_func_array($afterRemove);
-    	}    	
+    	}
 
     	return $id;
     }
@@ -112,13 +112,13 @@ class Controller extends BaseController
     	if($this->ensureWorkOrderIsOpen($work_order_id)){
     		if($this->ensureJobIsNotComplete($job_is_complete)){
     			return true;
-    		} 
-    	} 
+    		}
+    	}
 
     	return false;
-    } 
+    }
 
-	/** 
+	/**
 	 * Returns and error if the work order is closed (invoiced) and true if the work order is open (not invoiced)
 	 *
 	 * @param $work_order_id - The ID of the parent work order
@@ -136,7 +136,7 @@ class Controller extends BaseController
 	    } else {
 	    	return true;
 	    }
-	}  
+	}
 
 	protected function ensureJobIsNotComplete($is_complete)
 	{
@@ -145,6 +145,6 @@ class Controller extends BaseController
 	        return false;
 		} else {
 			return true;
-		}		
-	}  
+		}
+	}
 }

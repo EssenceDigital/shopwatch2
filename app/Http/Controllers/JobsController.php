@@ -15,8 +15,8 @@ Use App\BusSetting;
 class JobsController extends Controller
 {
 
-	/** 
-	 * Calculates and sets the totals that will be saved in a job. 
+	/**
+	 * Calculates and sets the totals that will be saved in a job.
 	 * Merges new values with the supplied request so it can be easily saved into a model.
 	 *
 	 * @param $request - The job request
@@ -34,10 +34,10 @@ class JobsController extends Controller
 			$shop_rate = $request->shop_rate;
 		} else {
 			// No shop rate present in request then get the current shop rate from business settings
-			$shop_rate = BusSetting::findOrFail(1)->shop_rate;			
+			$shop_rate = BusSetting::findOrFail(1)->shop_rate;
 		}
 
-		// Calculate the current labour total 
+		// Calculate the current labour total
 		$labour_total = round((floatval($request->hours) * floatval($shop_rate)), 3);
 		// Calculate the current tech pay total
 		$tech_pay_total = round(floatval($request->hours) * floatval($tech->hourly_wage), 3);
@@ -53,7 +53,7 @@ class JobsController extends Controller
 
 		// Merge the calculated data with the request
 		$request->merge([
-			'tech' => $tech->name, 
+			'tech' => $tech->name,
 			'tech_hourly_rate' => $tech->hourly_wage,
 			'tech_pay_total' => $tech_pay_total,
 			'shop_rate' => $shop_rate,
@@ -62,10 +62,10 @@ class JobsController extends Controller
 			'job_grand_total' => $grand_total
 		]);
 
-		return $request;	
+		return $request;
 	}
 
-	/** 
+	/**
 	 * Get a job based on ID.
 	 *
 	 * @param $id - The ID of the job
@@ -73,14 +73,14 @@ class JobsController extends Controller
 	*/
 	public function get($id)
 	{
-		return Job::with(['parts'])->findOrFail($id);
+		return Job::findOrFail($id);
 	}
 
-	/** 
-	 * Create a new job in the db associated with a work order. 
+	/**
+	 * Create a new job in the db associated with a work order.
 	 * Only creates the job if the parent work order is open.
 	 *
-	 * @param $request - SaveJob custom request 
+	 * @param $request - SaveJob custom request
 	 * @return Json App\Job - The created job
 	*/
 	public function create(SaveJob $request)
@@ -92,19 +92,19 @@ class JobsController extends Controller
 			// Save job
 			$job = $this->genericSave(new Job, $request);
 			// Find and return parent work order
-			return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($job->work_order_id);
+			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);			
+	        return response()->json($this->woGuardResponse, 422);
 		}
 	}
 
-	/** 
+	/**
 	 * Update an existing job in the db associated with a work order.
-	 * Only updates the job if the parent work order is open.	 
+	 * Only updates the job if the parent work order is open.
 	 *
-	 * @param $request - UpdateJob custom request 
+	 * @param $request - UpdateJob custom request
 	 * @return Json App\Job - The updated job
 	*/
 	public function update(UpdateJob $request)
@@ -118,12 +118,12 @@ class JobsController extends Controller
 			// Calculate totals before saving
 			$request = $this->calculateJobTotals($request, $job);
 			// Save job
-			$job = $this->genericSave($job, $request);		
+			$job = $this->genericSave($job, $request);
 			// Find and return parent work order
-			return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($job->work_order_id);				
+			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);			
+	        return response()->json($this->woGuardResponse, 422);
 		}
 	}
 
@@ -137,20 +137,20 @@ class JobsController extends Controller
 			// Update job
 			$job->is_complete = $request->is_complete;
 			// Save job
-			$job = $this->genericSave($job);		
+			$job = $this->genericSave($job);
 			// Find and return parent work order
-			return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($job->work_order_id);				
+			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);			
-		}		
+	        return response()->json($this->woGuardResponse, 422);
+		}
 	}
 
-	/** 
-	 * Removes a job from the db. 
+	/**
+	 * Removes a job from the db.
 	 * Only removes the job if the parent work order is open and the job has not been marked complete.
 	 *
-	 * @param $id - The id of the job to remove 
+	 * @param $id - The id of the job to remove
 	 * @return Int - The id of the removed job
 	*/
 	public function remove($id)
@@ -166,10 +166,10 @@ class JobsController extends Controller
 			// Job is allowed to be removed
 			$id =  $this->genericRemove($job);
 			// Find and return parent work order
-			return WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($wo_id);				
+			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($wo_id);
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);			
+	        return response()->json($this->woGuardResponse, 422);
 		}
 	}
 }
