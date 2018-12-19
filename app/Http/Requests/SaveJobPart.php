@@ -29,6 +29,7 @@ class SaveJobPart extends FormRequest
             'supplier' => 'required|string|max:100',
             'title' => 'required|string|max:100',
             'part_number' => 'required|string|max:100',
+            'quantity' => 'required|max:25',
             'total_cost' => 'required|numeric|between:0,1000000000000.99',
             'billing_price' => 'required|numeric|between:0,1000000000000.99'
         ];

@@ -49,16 +49,16 @@
 			<!-- Only show spacer if NOT invoice state -->
 			<v-flex v-if="!invoiceState" xs1 class="text-xs-right">
 				<!-- Job tool menu -->
-				<v-menu bottom left>
+				<v-menu left>
 		      <v-btn icon slot="activator" class="mt-0 mr-0">
-		        <v-icon>settings</v-icon>
+		        <v-icon>arrow_drop_down</v-icon>
 		      </v-btn>
 		      <v-list>
 		        <v-list-tile @click="editJobDialog = true">
-		          <v-list-tile-title>Edit</v-list-tile-title>
+		          <v-list-tile-title>Edit job</v-list-tile-title>
 		        </v-list-tile>
 		        <v-list-tile @click="addPartsDialog = true">
-		          <v-list-tile-title>Parts</v-list-tile-title>
+		          <v-list-tile-title>Add part</v-list-tile-title>
 		        </v-list-tile>
 		      </v-list>
 		    </v-menu>

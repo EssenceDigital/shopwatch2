@@ -1,9 +1,9 @@
 /**
- * Contains some useful methods that can be used by components to do some mundane and repetitive tasks. 
+ * Contains some useful methods that can be used by components to do some mundane and repetitive tasks.
  *
 */
 export default {
-	/** 
+	/**
 	 * Searches an array of objects for an 'id' and returns the matched object's index.
 	 * Each object in the array should have an
 	 *
@@ -20,7 +20,7 @@ export default {
 		return index;
 	},
 
-	/** 
+	/**
 	 * Populates an object with data from the supplied form.
 	 *
 	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -36,7 +36,7 @@ export default {
 		});
 	},
 
-	/** 
+	/**
 	 * Populates the supplied form with the supplied data
 	 *
 	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -50,20 +50,41 @@ export default {
 		}
 	},
 
-	/** 
+	/**
 	 * Resets the supplied form fields to their default state, including removing error messages.
 	 *
 	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
 	 * @return Promise - Resolves a function with the now cleared form.
 	*/
-	clearForm (fields) {
+	clearForm (fields, fieldToSkip, defaultValues) {
 		// Clear all form fields
 		for(var key in fields) {
-			fields[key].value = ''; 
-		}		
+			if(key){
+				if(key != fieldToSkip){
+					var resetValue = '';
+					// If there is default values other than an empty string
+					if(defaultValues){
+						if(defaultValues.hasOwnProperty(key)){
+							resetValue = defaultValues[key];
+						}
+					}
+
+					fields[key].value = resetValue;
+				}
+			}
+		}
 	},
 
-	/** 
+	clearFormLeaveId (fields){
+		// Clear all form fields
+		for(var key in fields) {
+			if(key != 'id'){
+				fields[key].value = '';
+			}
+		}
+	},
+
+	/**
 	 * Sets all form fields to an error state if they are present in the errors prop.
 	 *
 	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -73,19 +94,19 @@ export default {
 	populateFormErrors (fields, errors){
 		// Populate form errors
 		for(var key in errors) {
-			fields[key].errors = errors[key]; 
+			fields[key].errors = errors[key];
 		}
 	},
 
 	/**
 	 * Clears the supplied form fields of any possible error state.
 	 *
-	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.	 
+	 * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
 	*/
 	clearFormErrors (fields) {
 		// Clear are form error fields
 		for(var key in fields) {
-			fields[key].errors = []; 
+			fields[key].errors = [];
 		}
 	},
 
@@ -93,7 +114,7 @@ export default {
 	 * Creates a date time string compatible with the sql db. Takes a date, and a time in am/pm form.
 	 *
 	 * @param date - String - YYYY-MM-DD
-	 * @param time - String - Ex: 9:30am 
+	 * @param time - String - Ex: 9:30am
 	*/
 	constructDateTimeString (date, time) {
 		// Cache some vars to start
@@ -107,38 +128,38 @@ export default {
 			ampm = time.slice(4, 6);
 			// Get hours and mins, splice for 1 digit hour
 			let hour = rawTime.slice(0, 1);
-			let mins = rawTime.slice(2, 4);        		
+			let mins = rawTime.slice(2, 4);
 			// If its pm then we need to add 12 hours to create the 24 hr time
 	  	if(ampm === 'pm'){
 	  		// Create 24 hr hour
 	  		let hour24hr = parseInt(hour) + 12;
 	  		// Reconstruct time as 24 hr
-	  		time24hr = hour24hr + ':' + mins + ':00'; 
-	  	} 
+	  		time24hr = hour24hr + ':' + mins + ':00';
+	  	}
 	  	// If its am we need to do some checks and create the 24 hr time
 	  	else if(ampm === 'am'){
 	  		// Construct 24 hr time
 	  		time24hr = '0' + rawTime + ':00';
 	  	}
-		} 
+		}
 		// 7 digit time means the hour is two digit, so the splicing changes
 		else if(time.length === 7) {
 			// Two digit time, get am or pm
 			ampm = time.slice(5, 7);
 			// Get hours and mins, splice for 2 digit hour
 			let hour = rawTime.slice(0, 2);
-			let mins = rawTime.slice(3, 5);        		
+			let mins = rawTime.slice(3, 5);
 			// If its pm then we need to add 12 hours to create the 24 hr time
-	  	if(ampm == 'pm'){	        		
+	  	if(ampm == 'pm'){
 	  		// Create 24 hr hour
 	  		let hour24hr = hour;
 	  		// If the hour is not 12 pm we have to add 12 to it
 	  		if(parseInt(hour) !== 12){
 					hour24hr = parseInt(hour) + 12;
-	  		} 
+	  		}
 	  		// Reconstruct time as 24 hr
-	  		time24hr = hour24hr + ':' + mins + ':00'; 
-	  	}	
+	  		time24hr = hour24hr + ':' + mins + ':00';
+	  	}
 	  	// If its am we need to do some checks and create the 24 hr time
 	  	else if(ampm === 'am'){
 	  		// If its 12 am then replace the 12 with 0
@@ -147,10 +168,10 @@ export default {
 	  		}
 	  		// Construct 24 hr time
 	  		time24hr = hour + ':' + mins +':00';
-	  	}      		
-		}		
+	  	}
+		}
 
 		return date + ' ' + time24hr;
 	}
-	
+
 }

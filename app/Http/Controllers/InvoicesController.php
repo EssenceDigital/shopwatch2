@@ -15,11 +15,11 @@ use App\BusSetting;
 
 class InvoicesController extends Controller
 {
-	/** 
+	/**
 	 * Filters the invoice table based on passed params.
-	 * 
+	 *
 	 * @return Json Collection
-	*/	
+	*/
     public function filter($from_date = false, $to_date = false, $is_paid = false, $customer_id = false)
     {
     	// Default state for date (single date)
@@ -48,47 +48,45 @@ class InvoicesController extends Controller
 			$whereBetweenFields = [
 				'first' => ['field' => 'date', 'value' => $from_date],
 				'second' => ['field' => 'date', 'value' => $to_date]
-			];			
+			];
 		}
 
 		return $this->genericFilter(
 			Invoice::with([
-	    		'customer', 
+	    		'customer',
 	    		'vehicle'
-	    	])->orderBy('created_at', 'asc'), 
-	    	$whereFields, 
+	    	])->orderBy('created_at', 'asc'),
+	    	$whereFields,
 	    	$whereBetweenFields
-		);    	
+		);
     }
 
-	/** 
+	/**
 	 * Get an invoice based on ID.
 	 *
 	 * @param $id - The ID of the invoice
 	 * @return Json App\Invoice - The requested invoice
-	*/    
+	*/
     public function get($id)
     {
     	return Invoice::with(
-    		'customer', 
+    		'customer',
     		'vehicle',
-    		'work_order', 
-    		'work_order.jobs', 
-    		'work_order.jobs.parts', 
-    		'work_order.jobs.parts.supplier'
+    		'work_order',
+    		'work_order.jobs'
     	)->findOrFail($id);
     }
 
-	/** 
+	/**
 	 * Create a new invoice in the db associated with a work order. Updates the work order status.
 	 *
-	 * @param $request - SaveInvoice custom request 
+	 * @param $request - SaveInvoice custom request
 	 * @return Json App\Invoice - The created Invoice
 	*/
     public function create(SaveInvoice $request)
     {
     	// Get the work order first because we need the customer ID
-    	$wo = WorkOrder::with(['vehicle', 'customer', 'jobs', 'jobs.parts'])->findOrFail($request->work_order_id);
+    	$wo = WorkOrder::with(['vehicle', 'customer', 'jobs'])->findOrFail($request->work_order_id);
 
     	// Ensure the work order has jobs (cannot create an invoice from a work order with no jobs)
     	if($wo->jobs->isNotEmpty()){
@@ -136,13 +134,11 @@ class InvoicesController extends Controller
 	    	// Save invoice
 	    	$invoice = $this->genericSave($invoice);
 	    	// Load invoice relationships
-	    	$invoice->load(    		
-		    	'customer', 
+	    	$invoice->load(
+		    	'customer',
 	    		'vehicle',
-	    		'work_order', 
-	    		'work_order.jobs', 
-	    		'work_order.jobs.parts', 
-	    		'work_order.jobs.parts.supplier'
+	    		'work_order',
+	    		'work_order.jobs'
 	    	);
 
 	    	// Mark all jobs on work order as complete
@@ -152,17 +148,17 @@ class InvoicesController extends Controller
 	    			// Mark complete
 		    		$job->is_complete = 1;
 		    		// Save job
-		    		$this->genericSave($job);	    			
+		    		$this->genericSave($job);
 	    		}
 	    	}
 
-	    	// Update invoice info on work order 
+	    	// Update invoice info on work order
 	    	$wo->is_invoiced = 1;
 	    	$wo->invoice_id = $invoice->id;
 	    	// Save updated work order
 	    	$this->genericSave($wo);
 
-	    	return $invoice;    		
+	    	return $invoice;
     	} else {
     		// Work order has no jobs. Failed response
     		return response()->json([
@@ -173,25 +169,23 @@ class InvoicesController extends Controller
 
     }
 
-	/** 
+	/**
 	 * Marks an invoice as paid and sets the payment method and date.
 	 * Once the invoice is marked paid the related work order and the invoice become permanent and cannot be removed or modified.
 	 *
-	 * @param $request - MakrInvoicePaid custom request 
+	 * @param $request - MakrInvoicePaid custom request
 	 * @return Json App\Invoice - The updated invoice
 	*/
     public function markPaid(MarkInvoicePaid $request)
     {
     	// Find invoice
     	$invoice = Invoice::with(
-    		'customer', 
+    		'customer',
     		'vehicle',
-    		'work_order', 
-    		'work_order.jobs', 
-    		'work_order.jobs.parts', 
-    		'work_order.jobs.parts.supplier'
+    		'work_order',
+    		'work_order.jobs'
     	)->findOrFail($request->id);
-    	// Setup payment info 
+    	// Setup payment info
     	$invoice->is_paid = 1;
     	$invoice->payment_method = $request->payment_method;
     	// For timestamp
@@ -202,7 +196,7 @@ class InvoicesController extends Controller
     	return $this->genericSave($invoice);
     }
 
-	/** 
+	/**
 	 * Get all invoices associated with the supplied customer ID
 	 *
 	 * @param $id - The ID of the customer
@@ -213,7 +207,7 @@ class InvoicesController extends Controller
     	return Invoice::where('customer_id', '=', $id)->get();
     }
 
-	/** 
+	/**
 	 * Get all invoices associated with the supplied vehicle ID
 	 *
 	 * @param $id - The ID of the vehicle
@@ -224,10 +218,10 @@ class InvoicesController extends Controller
     	return Invoice::where('vehicle_id', '=', $id)->get();
     }
 
-	/** 
+	/**
 	 * Removes an invoice from the db. Can only remove an invoice not marked as paid.
 	 *
-	 * @param $id The id of the invoice to remove 
+	 * @param $id The id of the invoice to remove
 	 * @return Int - The id of the removed invoice
 	*/
     public function remove($id)
@@ -238,7 +232,7 @@ class InvoicesController extends Controller
     	// Can only remove an invoice that has not been paid
     	if(! $invoice->is_paid){
     		// Now find the related work order so we can reset the is_invoiced values
-    		$wo = WorkOrder::with(['customer', 'vehicle', 'jobs', 'jobs.parts', 'jobs.parts.supplier'])->findOrFail($invoice->work_order_id);
+    		$wo = WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($invoice->work_order_id);
 
     		// Update work order
     		$wo->is_invoiced = 0;
@@ -247,7 +241,7 @@ class InvoicesController extends Controller
     		$wo = $this->genericSave($wo);
     		// Delete the invoice
     		$id = $this->genericRemove($invoice);
-    		
+
     		return $wo;
 
     	} else {
@@ -255,7 +249,7 @@ class InvoicesController extends Controller
     		return response()->json([
     			'result' => 'error',
     			'message' => 'This invoice has been paid and cannot be removed.'
-    		], 422);    		
+    		], 422);
     	}
     }
 }

@@ -22,7 +22,7 @@
 	 			:error-messages="form.description.errors"
 	    ></v-textarea>
 	    <!-- Hours -->
-	    <v-flex xs2>
+	    <v-flex xs3>
 				<v-text-field
 					type="number"
 					min="0"
@@ -100,7 +100,7 @@
 			saved (){
 				if(! this.editState){
 					// Clear form
-					Helpers.clearForm(this.form);
+					Helpers.clearForm(this.form, 'work_order_id');
 				}
 				// Clear form errors
 				Helpers.clearFormErrors(this.form);

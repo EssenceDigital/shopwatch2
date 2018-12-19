@@ -83,7 +83,7 @@
 								</v-flex>
 							</v-layout>
 
-							<v-layout row class="red lighten-4 pt-2">
+							<v-layout row class="grey lighten-4 pt-2">
 								<!-- Customer info -->
 								<v-flex xs6>
 									<v-container fluid>
@@ -219,12 +219,25 @@
 			    <v-dialog v-model="confirmInvoiceDialog" persistent max-width="300px">
 			      <v-card>
 			        <v-card-text class="text-xs-center">
-			          Create invoice?
+								<v-layout row>
+									<v-flex xs11>
+										<v-text-field
+											type="number"
+											min="1"
+											step="1"
+								      label="Shop Supply Rate"
+								 			v-model="shopSupplyRate"
+								    ></v-text-field>
+							    </v-flex>
+									<v-flex xs1>
+										<span>%</span>
+									</v-flex>
+								</v-layout>
 			        </v-card-text>
 			        <v-card-actions>
 			        	<v-spacer></v-spacer>
 								<v-btn flat @click.native="confirmInvoiceDialog = false">Cancel</v-btn>
-			          <v-btn color="green darken-1" flat :loading="invoiceCreating" @click.native="createInvoice">Yes</v-btn>
+			          <v-btn color="teal" flat :loading="invoiceCreating" @click.native="createInvoice">Yes</v-btn>
 			          <v-spacer></v-spacer>
 			        </v-card-actions>
 			      </v-card>
@@ -269,7 +282,9 @@
 				removeWoDialog: false,
 				woOptionsDialog: false,
 				confirmInvoiceDialog: false,
-				invoiceCreating: false
+				invoiceCreating: false,
+				applyTax: false,
+				shopSupplyRate: 2
 			}
 		},
 
@@ -293,13 +308,15 @@
 			estGrandTotal (){
 				if(this.workOrder.jobs){
 					let total = 0;
-
 					this.workOrder.jobs.forEach((job) => {
 						total += parseFloat(job.job_grand_total);
 					});
-
 					return total;
 				}
+			},
+
+			busConfig (){
+				return this.$store.getters.busConfig;
 			}
 		},
 
@@ -334,7 +351,9 @@
 				this.invoiceCreating = true;
 				// Dispatch action
 				this.$store.dispatch('createInvoice', {
-					work_order_id: this.id
+					work_order_id: this.id,
+					apply_tax: '',
+					shop_supply_rate: this.shopSupplyRate
 				})
 					.then((response) => {
 						// Toggle loader
@@ -389,6 +408,10 @@
 			// Work order 'children' forms need some resources. Load them
 			this.$store.dispatch('getSuppliers');
 			this.$store.dispatch('getUsers');
+			this.$store.dispatch('getBusConfig')
+				.then(() => {
+					this.shopSupplyRate = this.busConfig.shop_supply_rate;
+				});
 		}
 	}
 </script>

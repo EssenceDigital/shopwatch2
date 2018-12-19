@@ -40,10 +40,10 @@ class JobPartsController extends Controller
     	}
 
     	// Calculate new parts total cost based on the part just saved
-    	$job->parts_total_cost = round(($current_parts_total_cost + floatval($part['total_cost'])), 3);
+    	$job->parts_total_cost = round(($current_parts_total_cost + (floatval($part['total_cost']) * $part['quantity'])), 3);
 
     	// Calculate new parts total billed based on the part just created
-    	$job->parts_total_billed = round(($current_parts_total_billed + floatval($part['billing_price'])), 3);
+    	$job->parts_total_billed = round(($current_parts_total_billed + (floatval($part['billing_price']) * $part['quantity'])), 3);
 
     	// Calculate the new grand total using new total billed amount
     	$job->job_grand_total = round(($current_grand_total + floatval($part['billing_price'])), 3);
@@ -116,8 +116,8 @@ class JobPartsController extends Controller
 				// Find part to be updated
 				$partToUpdate = $parts[$request->id];
 				// Cache the previous part's cost and billing price
-	    	$part_cost = $partToUpdate['total_cost'];
-	    	$part_billing = $partToUpdate['billing_price'];
+	    	$part_cost = floatval($partToUpdate['total_cost']) * $partToUpdate['quantity'];
+	    	$part_billing = floatval($partToUpdate['billing_price']) * $partToUpdate['quantity'];
 				// Replace part with updated part in parts array
 				$parts[$request->id] = $request->all();
 				// Replace updated parts in job
@@ -159,30 +159,35 @@ class JobPartsController extends Controller
     public function remove($part_id, $job_id)
     {
     	// Get the parent job
-    	$job = Job::findOrFail($part->job_id);
+    	$job = Job::findOrFail($job_id);
 
-		// Check if parent work order is still open (can only remove a part from an open (not invoiced) work order)
-		// Check if parent job is marked as complete (cannot remove a part from a job marked complete)
-		if($this->guardWorkOrder($job->work_order_id, $job->is_complete)){
-	    	// Cache the part cost and total billed
-	    	$part_total_cost = $part->total_cost;
-	    	$part_total_billed = $part->billing_price;
+			// Check if parent work order is still open (can only remove a part from an open (not invoiced) work order)
+			// Check if parent job is marked as complete (cannot remove a part from a job marked complete)
+			if($this->guardWorkOrder($job->work_order_id, $job->is_complete)){
+					$part = $job->parts[$part_id];
+		    	// Cache the part cost and total billed
+		    	$part_total_cost = floatval($part['total_cost']) * $part['quantity'];
+		    	$part_total_billed = floatval($part['billing_price']) * $part['quantity'];;
 
-			// Part is allowed to be removed, so remove it
-			$id = $this->genericRemove($part);
+					// Part is allowed to be removed, so remove it
+					$parts = $job->parts;
+					// Remove part from array
+					unset($parts[$part_id]);
+					// Add parts with removed part back to job
+					$job->parts = $parts;
 
-			// Update job totals by removing the deleted part costs
-    		$job->parts_total_cost = floatval($job->parts_total_cost) - floatval($part_total_cost);
-    		$job->parts_total_billed = floatval($job->parts_total_billed) - floatval($part_total_billed);
-	    	$job->job_grand_total = floatval($job->job_grand_total) - floatval($part_total_billed);
-	    	// Save job
-	    	$job = $this->genericSave($job);
+					// Update job totals by removing the deleted part costs
+	    		$job->parts_total_cost = floatval($job->parts_total_cost) - floatval($part_total_cost);
+	    		$job->parts_total_billed = floatval($job->parts_total_billed) - floatval($part_total_billed);
+		    	$job->job_grand_total = floatval($job->job_grand_total) - floatval($part_total_billed);
+		    	// Save job
+		    	$job = $this->genericSave($job);
 
-			// Find and return parent work order
-			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
-		} else {
-			// Failed response. Work order is closed or job is complete
-			return response()->json($this->woGuardResponse, 422);
-		}
+				// Find and return parent work order
+				return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
+			} else {
+				// Failed response. Work order is closed or job is complete
+				return response()->json($this->woGuardResponse, 422);
+			}
     }
 }

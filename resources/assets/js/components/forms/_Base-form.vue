@@ -59,7 +59,9 @@
       >
         <v-card>
           <v-card-text class="text-xs-center">
-            Permanently remove this?
+            <v-alert color="error" outline :value="true">
+               Permanently remove this?
+            </v-alert>
           </v-card-text>
           <v-card-actions>
           	<v-spacer></v-spacer>
@@ -117,7 +119,11 @@
 
 			hideSaveButton: {
 				default: false
-			}
+			},
+
+      removePayload: {
+        default: false
+      }
 		},
 
 		data (){
@@ -180,9 +186,13 @@
 			remove (){
       	// Toggle loader
       	this.isRemoving = true;
-        var removeKey = this.removeKey;
+        if(this.removePayload){
+          var payload = this.removePayload;
+        } else {
+          var payload = this.fields.id.value;
+        }
       	// Dispatch event to store
-      	this.$store.dispatch(this.removeAction, this.fields[removeKey].value)
+      	this.$store.dispatch(this.removeAction, payload)
       		.then((response) => {
       			// Toggle loader and dialog
       			this.removeDialog = false;

@@ -25,7 +25,9 @@ class SaveInvoice extends FormRequest
     {
         return [
             'id' => 'numeric|nullable',
-            'work_order_id' => 'required|numeric'
+            'work_order_id' => 'required|numeric',
+            'apply_tax' => 'required|boolean',
+            'shop_supply_rate' => 'required|numeric|between:0,1000000000000.99'
         ];
     }
 }

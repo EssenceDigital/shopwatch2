@@ -488,11 +488,11 @@ module.exports = {
 
 "use strict";
 /**
- * Contains some useful methods that can be used by components to do some mundane and repetitive tasks. 
+ * Contains some useful methods that can be used by components to do some mundane and repetitive tasks.
  *
 */
 /* harmony default export */ __webpack_exports__["a"] = ({
-	/** 
+	/**
   * Searches an array of objects for an 'id' and returns the matched object's index.
   * Each object in the array should have an
   *
@@ -512,7 +512,7 @@ module.exports = {
 	},
 
 
-	/** 
+	/**
   * Populates an object with data from the supplied form.
   *
   * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -529,7 +529,7 @@ module.exports = {
 	},
 
 
-	/** 
+	/**
   * Populates the supplied form with the supplied data
   *
   * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -544,21 +544,41 @@ module.exports = {
 	},
 
 
-	/** 
+	/**
   * Resets the supplied form fields to their default state, including removing error messages.
   *
   * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
   * @return Promise - Resolves a function with the now cleared form.
  */
-	clearForm: function clearForm(fields) {
+	clearForm: function clearForm(fields, fieldToSkip, defaultValues) {
 		// Clear all form fields
 		for (var key in fields) {
-			fields[key].value = '';
+			if (key) {
+				if (key != fieldToSkip) {
+					var resetValue = '';
+					// If there is default values other than an empty string
+					if (defaultValues) {
+						if (defaultValues.hasOwnProperty(key)) {
+							resetValue = defaultValues[key];
+						}
+					}
+
+					fields[key].value = resetValue;
+				}
+			}
+		}
+	},
+	clearFormLeaveId: function clearFormLeaveId(fields) {
+		// Clear all form fields
+		for (var key in fields) {
+			if (key != 'id') {
+				fields[key].value = '';
+			}
 		}
 	},
 
 
-	/** 
+	/**
   * Sets all form fields to an error state if they are present in the errors prop.
   *
   * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
@@ -576,7 +596,7 @@ module.exports = {
 	/**
   * Clears the supplied form fields of any possible error state.
   *
-  * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.	 
+  * @param Obj form - An object that contains objects for each form field. { val: , error: , errorMsg: , dflt: }.
  */
 	clearFormErrors: function clearFormErrors(fields) {
 		// Clear are form error fields
@@ -590,7 +610,7 @@ module.exports = {
   * Creates a date time string compatible with the sql db. Takes a date, and a time in am/pm form.
   *
   * @param date - String - YYYY-MM-DD
-  * @param time - String - Ex: 9:30am 
+  * @param time - String - Ex: 9:30am
  */
 	constructDateTimeString: function constructDateTimeString(date, time) {
 		// Cache some vars to start
@@ -57208,6 +57228,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
 
@@ -57251,6 +57273,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		},
 
 		hideSaveButton: {
+			default: false
+		},
+
+		removePayload: {
 			default: false
 		}
 	},
@@ -57316,9 +57342,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 			// Toggle loader
 			this.isRemoving = true;
-			var removeKey = this.removeKey;
+			if (this.removePayload) {
+				var payload = this.removePayload;
+			} else {
+				var payload = this.fields.id.value;
+			}
 			// Dispatch event to store
-			this.$store.dispatch(this.removeAction, this.fields[removeKey].value).then(function (response) {
+			this.$store.dispatch(this.removeAction, payload).then(function (response) {
 				// Toggle loader and dialog
 				_this2.removeDialog = false;
 				_this2.isRemoving = false;
@@ -57461,9 +57491,22 @@ var render = function() {
               _c(
                 "v-card",
                 [
-                  _c("v-card-text", { staticClass: "text-xs-center" }, [
-                    _vm._v("\n            Permanently remove this?\n          ")
-                  ]),
+                  _c(
+                    "v-card-text",
+                    { staticClass: "text-xs-center" },
+                    [
+                      _c(
+                        "v-alert",
+                        { attrs: { color: "error", outline: "", value: true } },
+                        [
+                          _vm._v(
+                            "\n               Permanently remove this?\n            "
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  ),
                   _vm._v(" "),
                   _c(
                     "v-card-actions",
@@ -62868,6 +62911,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -62885,7 +62941,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			removeWoDialog: false,
 			woOptionsDialog: false,
 			confirmInvoiceDialog: false,
-			invoiceCreating: false
+			invoiceCreating: false,
+			applyTax: false,
+			shopSupplyRate: 2
 		};
 	},
 
@@ -62908,13 +62966,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		estGrandTotal: function estGrandTotal() {
 			if (this.workOrder.jobs) {
 				var total = 0;
-
 				this.workOrder.jobs.forEach(function (job) {
 					total += parseFloat(job.job_grand_total);
 				});
-
 				return total;
 			}
+		},
+		busConfig: function busConfig() {
+			return this.$store.getters.busConfig;
 		}
 	},
 
@@ -62952,7 +63011,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			this.invoiceCreating = true;
 			// Dispatch action
 			this.$store.dispatch('createInvoice', {
-				work_order_id: this.id
+				work_order_id: this.id,
+				apply_tax: '',
+				shop_supply_rate: this.shopSupplyRate
 			}).then(function (response) {
 				// Toggle loader
 				_this2.invoiceCreating = false;
@@ -63005,6 +63066,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		// Work order 'children' forms need some resources. Load them
 		this.$store.dispatch('getSuppliers');
 		this.$store.dispatch('getUsers');
+		this.$store.dispatch('getBusConfig').then(function () {
+			_this3.shopSupplyRate = _this3.busConfig.shop_supply_rate;
+		});
 	}
 });
 
@@ -63115,7 +63179,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		saved: function saved() {
 			if (!this.editState) {
 				// Clear form
-				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form);
+				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id');
 			}
 			// Clear form errors
 			__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearFormErrors(this.form);
@@ -63190,7 +63254,7 @@ var render = function() {
           _vm._v(" "),
           _c(
             "v-flex",
-            { attrs: { xs2: "" } },
+            { attrs: { xs3: "" } },
             [
               _c("v-text-field", {
                 attrs: {
@@ -63511,13 +63575,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-	props: ['action', 'part', 'job', 'editState'],
+	props: ['action', 'part', 'job', 'editState', 'removePayload'],
 
 	data: function data() {
 		return {
@@ -63527,6 +63602,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				title: { value: '', errors: [] },
 				part_number: { value: '', errors: [] },
 				supplier: { value: '', errors: [] },
+				quantity: { value: 1, errors: [] },
 				total_cost: { value: '', errors: [] },
 				billing_price: { value: '', errors: [] }
 			},
@@ -63565,7 +63641,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		saved: function saved() {
 			if (!this.editState) {
 				// Clear form
-				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form);
+				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form, 'job_id', { quantity: 1 });
 			}
 			// Clear form errors
 			__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearFormErrors(this.form);
@@ -63786,7 +63862,7 @@ var render = function() {
       attrs: {
         action: _vm.action,
         "remove-action": "removeJobPart",
-        "remove-key": "job_id",
+        "remove-payload": _vm.removePayload,
         "edit-state": _vm.editState,
         fields: _vm.form
       },
@@ -63888,6 +63964,30 @@ var render = function() {
               expression: "form.part_number.value"
             }
           }),
+          _vm._v(" "),
+          _c(
+            "v-flex",
+            { attrs: { xs3: "" } },
+            [
+              _c("v-text-field", {
+                attrs: {
+                  type: "number",
+                  min: "1",
+                  step: "1",
+                  label: "Quantity",
+                  "error-messages": _vm.form.quantity.errors
+                },
+                model: {
+                  value: _vm.form.quantity.value,
+                  callback: function($$v) {
+                    _vm.$set(_vm.form.quantity, "value", $$v)
+                  },
+                  expression: "form.quantity.value"
+                }
+              })
+            ],
+            1
+          ),
           _vm._v(" "),
           _c("v-text-field", {
             attrs: {
@@ -64011,6 +64111,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -64063,11 +64174,31 @@ var render = function() {
       _vm._v(" "),
       _c("v-spacer"),
       _vm._v(" "),
+      _c("v-flex", { staticClass: "text-xs-right", attrs: { xs1: "" } }, [
+        _c("p", { staticClass: "pa-2 mb-0" }, [
+          _vm._v("\n\t\t\t\t" + _vm._s(_vm.part.quantity) + "\n\t\t\t")
+        ])
+      ]),
+      _vm._v(" "),
+      _c("v-flex", { staticClass: "text-xs-right", attrs: { xs2: "" } }, [
+        _vm.part.quantity > 1
+          ? _c("p", { staticClass: "pa-2 mb-0" }, [
+              _vm._v(
+                "\n\t\t\t\t[" +
+                  _vm._s(_vm._f("money")(_vm.part.billing_price)) +
+                  "]\n\t\t\t"
+              )
+            ])
+          : _vm._e()
+      ]),
+      _vm._v(" "),
       _c("v-flex", { staticClass: "text-xs-right", attrs: { xs2: "" } }, [
         _c("p", { staticClass: "pa-2 mb-0" }, [
           _vm._v(
             "\n\t\t\t\t" +
-              _vm._s(_vm._f("money")(_vm.part.billing_price)) +
+              _vm._s(
+                _vm._f("money")(_vm.part.billing_price * _vm.part.quantity)
+              ) +
               "\n\t\t\t"
           )
         ])
@@ -64089,7 +64220,7 @@ var render = function() {
                       attrs: { slot: "activator", icon: "" },
                       slot: "activator"
                     },
-                    [_c("v-icon", [_vm._v("settings")])],
+                    [_c("v-icon", [_vm._v("arrow_drop_down")])],
                     1
                   ),
                   _vm._v(" "),
@@ -64105,7 +64236,7 @@ var render = function() {
                             }
                           }
                         },
-                        [_c("v-list-tile-title", [_vm._v("Edit")])],
+                        [_c("v-list-tile-title", [_vm._v("Edit part")])],
                         1
                       )
                     ],
@@ -64136,7 +64267,8 @@ var render = function() {
             attrs: {
               action: "updateJobPart",
               part: _vm.part,
-              "edit-state": "true"
+              "edit-state": "true",
+              "remove-payload": _vm.part.id + "/" + _vm.part.job_id
             },
             on: {
               saved: function($event) {
@@ -64282,7 +64414,7 @@ var render = function() {
                 [
                   _c(
                     "v-menu",
-                    { attrs: { bottom: "", left: "" } },
+                    { attrs: { left: "" } },
                     [
                       _c(
                         "v-btn",
@@ -64291,7 +64423,7 @@ var render = function() {
                           attrs: { slot: "activator", icon: "" },
                           slot: "activator"
                         },
-                        [_c("v-icon", [_vm._v("settings")])],
+                        [_c("v-icon", [_vm._v("arrow_drop_down")])],
                         1
                       ),
                       _vm._v(" "),
@@ -64307,7 +64439,7 @@ var render = function() {
                                 }
                               }
                             },
-                            [_c("v-list-tile-title", [_vm._v("Edit")])],
+                            [_c("v-list-tile-title", [_vm._v("Edit job")])],
                             1
                           ),
                           _vm._v(" "),
@@ -64320,7 +64452,7 @@ var render = function() {
                                 }
                               }
                             },
-                            [_c("v-list-tile-title", [_vm._v("Parts")])],
+                            [_c("v-list-tile-title", [_vm._v("Add part")])],
                             1
                           )
                         ],
@@ -64772,7 +64904,7 @@ var render = function() {
                               _c(
                                 "v-layout",
                                 {
-                                  staticClass: "red lighten-4 pt-2",
+                                  staticClass: "grey lighten-4 pt-2",
                                   attrs: { row: "" }
                                 },
                                 [
@@ -65232,10 +65364,41 @@ var render = function() {
                                 "v-card-text",
                                 { staticClass: "text-xs-center" },
                                 [
-                                  _vm._v(
-                                    "\n\t\t          Create invoice?\n\t\t        "
+                                  _c(
+                                    "v-layout",
+                                    { attrs: { row: "" } },
+                                    [
+                                      _c(
+                                        "v-flex",
+                                        { attrs: { xs11: "" } },
+                                        [
+                                          _c("v-text-field", {
+                                            attrs: {
+                                              type: "number",
+                                              min: "1",
+                                              step: "1",
+                                              label: "Shop Supply Rate"
+                                            },
+                                            model: {
+                                              value: _vm.shopSupplyRate,
+                                              callback: function($$v) {
+                                                _vm.shopSupplyRate = $$v
+                                              },
+                                              expression: "shopSupplyRate"
+                                            }
+                                          })
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c("v-flex", { attrs: { xs1: "" } }, [
+                                        _c("span", [_vm._v("%")])
+                                      ])
+                                    ],
+                                    1
                                   )
-                                ]
+                                ],
+                                1
                               ),
                               _vm._v(" "),
                               _c(
@@ -65260,7 +65423,7 @@ var render = function() {
                                     "v-btn",
                                     {
                                       attrs: {
-                                        color: "green darken-1",
+                                        color: "teal",
                                         flat: "",
                                         loading: _vm.invoiceCreating
                                       },

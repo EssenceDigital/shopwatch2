@@ -2,7 +2,7 @@
 	<base-form
 		:action="action"
 		remove-action="removeJobPart"
-		remove-key="job_id"
+		:remove-payload="removePayload"
 		:edit-state="editState"
 		:fields="form"
 		@saved="saved"
@@ -44,6 +44,17 @@
 	 			v-model="form.part_number.value"
 	 			:error-messages="form.part_number.errors"
 	    ></v-text-field>
+			<!-- Quantity -->
+	    <v-flex xs3>
+				<v-text-field
+					type="number"
+					min="1"
+					step="1"
+		      label="Quantity"
+		 			v-model="form.quantity.value"
+		 			:error-messages="form.quantity.errors"
+		    ></v-text-field>
+	    </v-flex>
 			<!-- Billing price -->
 			<v-text-field
 	      label="Billing price"
@@ -77,7 +88,7 @@
 	import SupplierForm from './Supplier-form';
 
 	export default{
-		props: ['action', 'part', 'job', 'editState'],
+		props: ['action', 'part', 'job', 'editState', 'removePayload'],
 
 		data (){
 			return {
@@ -87,6 +98,7 @@
 					title: {value: '', errors: []},
 					part_number: {value: '', errors: []},
 					supplier: {value: '', errors: []},
+					quantity: {value: 1, errors: []},
 					total_cost: {value: '', errors: []},
 					billing_price: {value: '', errors: []}
 				},
@@ -125,7 +137,7 @@
 			saved (){
 				if(! this.editState){
 					// Clear form
-					Helpers.clearForm(this.form);
+					Helpers.clearForm(this.form, 'job_id', { quantity: 1 });
 				}
 				// Clear form errors
 				Helpers.clearFormErrors(this.form);
