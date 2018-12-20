@@ -220,7 +220,8 @@
 			      <v-card>
 			        <v-card-text class="text-xs-center">
 								<v-layout row>
-									<v-flex xs11>
+									<v-spacer></v-spacer>
+									<v-flex xs5>
 										<v-text-field
 											type="number"
 											min="1"
@@ -229,15 +230,26 @@
 								 			v-model="shopSupplyRate"
 								    ></v-text-field>
 							    </v-flex>
-									<v-flex xs1>
-										<span>%</span>
+									<v-flex xs1 class="mt-4">
+										<strong class="title">%</strong>
 									</v-flex>
+									<v-spacer></v-spacer>
+								</v-layout>
+								<v-layout row>
+									<v-spacer></v-spacer>
+									<v-flex xs6>
+										<v-switch
+											label="Apply Tax?"
+											v-model="applyTax"
+										></v-switch>
+									</v-flex>
+									<v-spacer></v-spacer>
 								</v-layout>
 			        </v-card-text>
 			        <v-card-actions>
 			        	<v-spacer></v-spacer>
 								<v-btn flat @click.native="confirmInvoiceDialog = false">Cancel</v-btn>
-			          <v-btn color="teal" flat :loading="invoiceCreating" @click.native="createInvoice">Yes</v-btn>
+			          <v-btn color="teal" flat :loading="invoiceCreating" @click.native="createInvoice">Create</v-btn>
 			          <v-spacer></v-spacer>
 			        </v-card-actions>
 			      </v-card>
@@ -283,7 +295,7 @@
 				woOptionsDialog: false,
 				confirmInvoiceDialog: false,
 				invoiceCreating: false,
-				applyTax: false,
+				applyTax: true,
 				shopSupplyRate: 2
 			}
 		},
@@ -352,7 +364,7 @@
 				// Dispatch action
 				this.$store.dispatch('createInvoice', {
 					work_order_id: this.id,
-					apply_tax: '',
+					apply_tax: this.applyTax,
 					shop_supply_rate: this.shopSupplyRate
 				})
 					.then((response) => {

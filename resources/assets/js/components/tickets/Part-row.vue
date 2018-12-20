@@ -6,18 +6,18 @@
 			</p>
 		</v-flex>
 		<v-flex xs7>
-			<p class="pa-2 mb-0">
+			<p class="pt-2 pb-2 mb-0">
 				{{ part.title }}
 			</p>
 		</v-flex>
 		<v-spacer></v-spacer>
-		<v-flex xs1 class="text-xs-right">
+		<v-flex xs1 class="text-xs-center">
 			<p class="pa-2 mb-0">
 				{{ part.quantity }}
 			</p>
 		</v-flex>
-		<v-flex xs2 class="text-xs-right">
-			<p v-if="part.quantity > 1" class="pa-2 mb-0">
+		<v-flex xs2 class="text-xs-center">
+			<p class="pa-2 mb-0">
 				[{{ part.billing_price | money }}]
 			</p>
 		</v-flex>

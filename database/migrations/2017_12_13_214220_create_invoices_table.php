@@ -33,6 +33,7 @@ class CreateInvoicesTable extends Migration
             $table->decimal('total_parts', 13, 3)->default(0.000);
             $table->decimal('total_parts_cost', 13, 3)->default(0.000);
             $table->decimal('sub_total', 13, 3)->default(0.000);
+            $table->decimal('shop_supply_total', 13, 3)->default(0.000);
             $table->decimal('gst_total', 13, 3)->default(0.000);
             $table->decimal('grand_total', 13, 3)->default(0.000);
             $table->timestamps();

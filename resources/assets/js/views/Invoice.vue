@@ -5,19 +5,19 @@
 			<layout v-if="invoice">
 				<div slot="title">Invoice</div>
 
-				<div slot="tools" v-if="!invoice.is_paid">	
+				<div slot="tools" v-if="!invoice.is_paid">
 					<v-tooltip top>
 				    <v-btn color="warning" left slot="activator" @click="rollbackDialog = true">
 				      <v-icon left>restore</v-icon> Rollback
-				    </v-btn>				
+				    </v-btn>
 			      <span>Rollback to WO</span>
 			    </v-tooltip>
 					<v-tooltip top>
 				    <v-btn color="success" left slot="activator" @click="paymentMethodDialog = true">
 				      <v-icon left>check_circle</v-icon> Mark Paid
-				    </v-btn>				
+				    </v-btn>
 			      <span>Complete payment</span>
-			    </v-tooltip>	    		
+			    </v-tooltip>
 				</div>
 
 
@@ -29,38 +29,38 @@
 							<v-layout row class="mb-3">
 								<v-spacer></v-spacer>
 								<v-tooltip v-if="invoice.is_paid" top>
-							    <v-icon color="success" slot="activator">check_circle</v-icon>				
+							    <v-icon color="success" slot="activator">check_circle</v-icon>
 						      <span>Invoice is paid</span>
-						    </v-tooltip>						
+						    </v-tooltip>
 								<v-tooltip v-else top>
-							    <v-icon color="error" slot="activator">cancel</v-icon>				
+							    <v-icon color="error" slot="activator">cancel</v-icon>
 						      <span>Invoice not paid</span>
-						    </v-tooltip>												
+						    </v-tooltip>
 							</v-layout>
 
 							<!--Business headline -->
 							<v-layout row>
 								<v-flex xs6>
 										<h1>UNA AUTO SERVICE</h1>
-										<h4 class="ml-1">Repairs, detailing, maintenance</h4>						
+										<h4 class="ml-1">Repairs, detailing, maintenance</h4>
 								</v-flex>
 								<v-flex xs6 class="text-xs-right">
-										<h1 class="grey--text">INVOICE</h1>	
-										<small class="grey--text">(#{{ invoice.id }})</small>					
-								</v-flex>							
+										<h1 class="grey--text">INVOICE</h1>
+										<small class="grey--text">(#{{ invoice.id }})</small>
+								</v-flex>
 							</v-layout>
 
 							<v-divider class="mt-2 mb-2"></v-divider>
 
-							<!--WO, Invoice dates -->				
+							<!--WO, Invoice dates -->
 							<v-layout row>
 								<v-flex xs4>
 									<strong>INVOICE DATE:</strong> {{ invoice.date | date}}
-								</v-flex>	
-								<v-spacer></v-spacer>						
+								</v-flex>
+								<v-spacer></v-spacer>
 								<v-flex xs4 class="text-xs-right">
 									<strong>WO DATE:</strong> {{ invoice.work_order.date | date }}
-								</v-flex>					
+								</v-flex>
 							</v-layout>
 						</v-container>
 
@@ -73,7 +73,7 @@
 								</v-flex>
 								<v-flex xs6>
 									<h3 class="white--text pa-2">VEHICLE</h3>
-								</v-flex>						
+								</v-flex>
 							</v-layout>
 
 							<v-layout row class="red lighten-4 pt-2">
@@ -103,8 +103,8 @@
 											<v-flex xs3>
 												{{ invoice.customer.phone_two }}
 											</v-flex>
-										</v-layout>									
-									</v-container>														
+										</v-layout>
+									</v-container>
 								</v-flex>
 								<!-- Vehicle info -->
 								<v-flex xs6>
@@ -140,10 +140,10 @@
 											<v-flex xs3>
 												{{ invoice.vehicle.vin }}
 											</v-flex>
-										</v-layout>									
-									</v-container>																										
-								</v-flex>						
-							</v-layout>					
+										</v-layout>
+									</v-container>
+								</v-flex>
+							</v-layout>
 						</v-container>
 
 						<!-- Jobs heading container -->
@@ -161,8 +161,8 @@
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<h3 class="white--text pa-2">TOTAL</h3>
-								</v-flex>																				
-							</v-layout>	
+								</v-flex>
+							</v-layout>
 
 							<!-- All jobs -->
 							<job-row v-for="job in invoice.work_order.jobs" :job="job" :key="job.id" :invoice-state="true"></job-row>
@@ -170,56 +170,19 @@
 							<v-divider class="mt-2 mb-2"></v-divider>
 
 							<!-- Job labour total -->
-							<v-layout row>
+							<!--<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>SUBTOTAL:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.total_labour | money }}
 									</p>
-								</v-flex>						
-							</v-layout>
-						</v-container>
-
-						<!-- Parts heading container -->
-						<v-container fluid class="pa-2" v-if="invoice.total_parts > 0">
-							<!-- Parts headings -->
-							<v-layout row class="red darken-4 mt-2">
-								<v-flex xs3>
-									<h3 class="white--text pa-2">PART INVOICE #</h3>
 								</v-flex>
-								<v-flex xs7>
-									<h3 class="white--text pa-2">PARTS</h3>
-								</v-flex>
-								<v-flex xs2 class="text-xs-right">
-									<h3 class="white--text pa-2">TOTAL</h3>
-								</v-flex>																				
-							</v-layout>		
-
-							<div v-for="job in invoice.work_order.jobs" :key="job.id">
-								<part-row v-for="part in job.parts" :part="part" :key="part.id" :invoice-state="true"></part-row>
-							</div>		
-							
-							<v-divider class="mt-4 mb-2"></v-divider>
-
-							<!-- Job parts total -->
-							<v-layout row>
-								<v-spacer></v-spacer>
-								<v-flex xs2 class="text-xs-right">
-									<p class="pa-2 mb-0">
-										<strong>SUBTOTAL:</strong>
-									</p>							
-								</v-flex>
-								<v-flex xs2 class="text-xs-right">
-									<p class="pa-2 mb-0">
-										{{ invoice.total_parts | money }}
-									</p>
-								</v-flex>						
-							</v-layout>												
+							</v-layout>-->
 						</v-container>
 
 						<!-- Grand totals container -->
@@ -229,71 +192,71 @@
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>GST RATE:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.gst_rate | gst }}
 									</p>
-								</v-flex>	
-							</v-layout>					
+								</v-flex>
+							</v-layout>
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>TOTAL LABOUR:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.total_labour | money }}
 									</p>
-								</v-flex>	
-							</v-layout>	
+								</v-flex>
+							</v-layout>
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>TOTAL PARTS:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.total_parts | money }}
 									</p>
-								</v-flex>	
-							</v-layout>						
+								</v-flex>
+							</v-layout>
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>TOTAL GST:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.gst_total | money }}
 									</p>
-								</v-flex>	
-							</v-layout>		
+								</v-flex>
+							</v-layout>
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>SHOP SUPPLIES:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.shop_supply_rate | money }}
 									</p>
-								</v-flex>	
-							</v-layout>	
+								</v-flex>
+							</v-layout>
 							<!-- Grand total divider -->
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs4>
-									<v-divider class="mt-2 mb-2"></v-divider>	
+									<v-divider class="mt-2 mb-2"></v-divider>
 								</v-flex>
 							</v-layout>
 
@@ -303,14 +266,14 @@
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										<strong>GRAND TOTAL:</strong>
-									</p>							
+									</p>
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
 										{{ invoice.grand_total | money }}
 									</p>
-								</v-flex>	
-							</v-layout>	
+								</v-flex>
+							</v-layout>
 						</v-container>
 
 						<v-container fluid class="mt-5">
@@ -332,15 +295,15 @@
 			          <v-tooltip top>
 			            <v-btn icon class="mr-0" slot="activator" @click="paymentMethodDialog = false">
 			              <v-icon class="white--text mr-0">close</v-icon>
-			            </v-btn>                      
+			            </v-btn>
 			            <span>Close dialog</span>
-			          </v-tooltip>            
+			          </v-tooltip>
 			        </v-system-bar>
 			        <v-card-text>
 			          <payment-method-form action="markInvoicePaid" :invoice="id" @saved="paymentMethodDialog = false"></payment-method-form>
 			        </v-card-text>
 			      </v-card>
-			    </v-dialog>			
+			    </v-dialog>
 
 		    <!-- Remove dialog -->
 		    <v-dialog v-model="rollbackDialog" persistent max-width="300px">
@@ -350,9 +313,9 @@
 		          <v-tooltip top>
 		            <v-btn icon class="mr-0" slot="activator" @click="rollbackDialog = false">
 		              <v-icon class="white--text mr-0">close</v-icon>
-		            </v-btn>                      
+		            </v-btn>
 		            <span>Close dialog</span>
-		          </v-tooltip>            
+		          </v-tooltip>
 		        </v-system-bar>
 		        <v-card-text>
 		          Roll this invoice back to work order state?
@@ -360,22 +323,22 @@
 		        <v-card-actions>
 		        	<v-spacer></v-spacer>
 							<v-btn color="error" flat @click.native="rollbackDialog = false">Cancel</v-btn>
-		          <v-btn color="success" flat :loading="isRemoving" @click.native="rollback">Yes</v-btn>    
-		          <v-spacer></v-spacer>    	
+		          <v-btn color="success" flat :loading="isRemoving" @click.native="rollback">Yes</v-btn>
+		          <v-spacer></v-spacer>
 		        </v-card-actions>
 		      </v-card>
-		    </v-dialog> 	    
+		    </v-dialog>
 				</div><!--/ Content slot -->
-			</layout>			
+			</layout>
 			<!-- Invoice not found -->
 			<v-layout v-else row>
 				<v-flex xs6 offset-xs3 class="text-xs-center">
 					<v-alert outline color="error" icon="error" value="true">
-							The requested invoice was not found. It may have been deleted					
+							The requested invoice was not found. It may have been deleted
 					</v-alert>
 					<v-btn flat @click="$router.push('/')">
 						<v-icon left>replay</v-icon> Go to dashboard
-					</v-btn>									
+					</v-btn>
 				</v-flex>
 			</v-layout>
 		</div>
@@ -424,7 +387,7 @@
 							// Toggle state
 							this.componentLoading = false;
 						});
-				}				
+				}
 			}
 		},
 
@@ -483,8 +446,8 @@
 					});
 			} else {
 				// Toggle state
-				this.componentLoading = false;				
+				this.componentLoading = false;
 			}
-		}	
+		}
 	}
 </script>

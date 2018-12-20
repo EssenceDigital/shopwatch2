@@ -92,6 +92,12 @@ class InvoicesController extends Controller
     	if($wo->jobs->isNotEmpty()){
 	    	// Get the current business settings
 	    	$bus_settings = BusSetting::find(1);
+        // If tax should be applied or not
+        if($request->apply_tax){
+          $gst_rate = $bus_settings->gst_rate;
+        } else {
+          $gst_rate = 0;
+        }
 	    	// Start the invoice
 	    	$invoice = new Invoice;
 	    	// Assign basic invoice values
@@ -100,8 +106,8 @@ class InvoicesController extends Controller
 	    	$invoice->work_order_id = $wo->id;
 	    	$invoice->vehicle_id = $wo->vehicle_id;
 	    	$invoice->customer_id = $wo->customer_id;
-	    	$invoice->gst_rate = $bus_settings->gst_rate;
-	    	$invoice->shop_supply_rate = $bus_settings->shop_supply_rate;
+	    	$invoice->gst_rate = $gst_rate;
+	    	$invoice->shop_supply_rate = $request->shop_supply_rate;
 
 	    	// Start totals
 	    	$total_labour = 0;
@@ -119,8 +125,9 @@ class InvoicesController extends Controller
 
 	    	// Calculate final totals
 	    	$sub_total = floatval($total_labour) + floatval($total_parts);
+        $shop_supply_total = floatval($sub_total) * (floatval($invoice->shop_supply_rate) / 100);
 	    	$gst_total = floatval($sub_total) * floatval($invoice->gst_rate);
-	    	$grand_total = floatval($sub_total) + floatval($gst_total) + floatval($invoice->shop_supply_rate);
+	    	$grand_total = floatval($sub_total) + floatval($gst_total) + floatval($shop_supply_total);
 
 	    	// Cache totals in invoice
 	    	$invoice->total_labour = round($total_labour, 3);
@@ -128,6 +135,7 @@ class InvoicesController extends Controller
 	    	$invoice->total_parts = round($total_parts, 3);
 	    	$invoice->total_parts_cost = round($total_parts_cost, 3);
 	    	$invoice->sub_total = round($sub_total, 3);
+        $invoice->shop_supply_total = round($shop_supply_total, 3);
 	    	$invoice->gst_total = round($gst_total, 3);
 	    	$invoice->grand_total = round($grand_total, 3);
 

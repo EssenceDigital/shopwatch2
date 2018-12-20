@@ -97,11 +97,59 @@
 		<!-- Job parts -->
 		<v-layout row class="mb-2">
 			<v-flex xs12>
+				<!-- Part headings -->
+				<v-layout v-if="job.parts" row class="grey lighten-4 mt-2">
+					<v-flex xs3>
+						<p class="pa-2 pl-3 mb-0">
+							<strong>PART #</strong>
+						</p>
+					</v-flex>
+					<v-flex xs7>
+						<p class="pt-2 pb-2 mb-0">
+							<strong>PART</strong>
+						</p>
+					</v-flex>
+					<v-spacer></v-spacer>
+					<v-flex xs1>
+						<p class="pt-2 pb-2 mb-0">
+							<strong>QUANTITY</strong>
+						</p>
+					</v-flex>
+					<v-flex xs2>
+						<p class="pt-2 pb-2 mb-0 text-xs-center">
+							<strong>EA.</strong>
+						</p>
+					</v-flex>
+					<v-flex xs2>
+						<p class="pt-2 pb-2 mb-0 text-xs-right">
+							<strong>LINE TOTAL</strong>
+						</p>
+					</v-flex>
+					<v-flex xs1></v-flex>
+				</v-layout>
 				<part-row v-for="part in job.parts" :part="part" :key="part.id"></part-row>
 			</v-flex>
 		</v-layout>
 
 		<v-divider></v-divider>
+		<v-layout row>
+			<v-spacer></v-spacer>
+			<v-flex xs2 class="text-xs-right">
+				<p class="pa-2 mb-0">
+					<strong>JOB LABOUR:</strong> {{ job.job_labour_total | money }}
+				</p>
+			</v-flex>
+			<v-flex xs2 class="text-xs-right">
+				<p class="pa-2 mb-0">
+					<strong>JOB PARTS:</strong> {{ job.job_parts_total | money }}
+				</p>
+			</v-flex>
+			<v-flex xs2 class="text-xs-right">
+				<p class="pa-2 mb-0">
+					<strong>JOB TOTAL:</strong> {{ job.job_grand_total | money }}
+				</p>
+			</v-flex>
+		</v-layout>
 	</v-container>
 </template>
 
