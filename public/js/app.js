@@ -62936,6 +62936,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -62975,7 +63003,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 			return parts;
 		},
-		estGrandTotal: function estGrandTotal() {
+		preTotal: function preTotal() {
 			if (this.workOrder.jobs) {
 				var total = 0;
 				this.workOrder.jobs.forEach(function (job) {
@@ -63333,6 +63361,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tickets_Part_row__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tickets_Part_row___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__tickets_Part_row__);
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -64218,7 +64253,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "v-layout",
-    { attrs: { row: "" } },
+    { staticClass: "caption", attrs: { row: "" } },
     [
       _c("v-flex", { attrs: { xs3: "" } }, [
         _c("p", { staticClass: "pa-2 pl-3 mb-0" }, [
@@ -64616,18 +64651,21 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _c(
-        "v-layout",
-        { staticClass: "mb-2", attrs: { row: "" } },
-        [
-          _c(
-            "v-flex",
-            { attrs: { xs12: "" } },
+      _vm.job.parts.length != 0
+        ? _c(
+            "v-layout",
+            { staticClass: "mb-3", attrs: { row: "" } },
             [
-              _vm.job.parts
-                ? _c(
+              _c(
+                "v-flex",
+                { attrs: { xs12: "" } },
+                [
+                  _c(
                     "v-layout",
-                    { staticClass: "grey lighten-4 mt-2", attrs: { row: "" } },
+                    {
+                      staticClass: "grey lighten-4 mt-2 caption",
+                      attrs: { row: "" }
+                    },
                     [
                       _c("v-flex", { attrs: { xs3: "" } }, [
                         _c("p", { staticClass: "pa-2 pl-3 mb-0" }, [
@@ -64668,20 +64706,21 @@ var render = function() {
                       _c("v-flex", { attrs: { xs1: "" } })
                     ],
                     1
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm._l(_vm.job.parts, function(part) {
-                return _c("part-row", { key: part.id, attrs: { part: part } })
-              })
+                  ),
+                  _vm._v(" "),
+                  _vm._l(_vm.job.parts, function(part) {
+                    return _c("part-row", {
+                      key: part.id,
+                      attrs: { part: part }
+                    })
+                  })
+                ],
+                2
+              )
             ],
-            2
+            1
           )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("v-divider"),
+        : _vm._e(),
       _vm._v(" "),
       _c(
         "v-layout",
@@ -64689,41 +64728,70 @@ var render = function() {
         [
           _c("v-spacer"),
           _vm._v(" "),
-          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs2: "" } }, [
-            _c("p", { staticClass: "pa-2 mb-0" }, [
-              _c("strong", [_vm._v("JOB LABOUR:")]),
-              _vm._v(
-                " " +
-                  _vm._s(_vm._f("money")(_vm.job.job_labour_total)) +
-                  "\n\t\t\t"
-              )
-            ])
+          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs3: "" } }, [
+            _c(
+              "p",
+              { staticClass: "pa-2 mb-0 caption grey--text" },
+              [
+                _c("v-icon", { attrs: { small: "", left: "" } }, [
+                  _vm._v("build")
+                ]),
+                _vm._v(" "),
+                _c("strong", [_vm._v("LABOUR:")]),
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("money")(_vm.job.job_labour_total)) +
+                    "\n\t\t\t"
+                )
+              ],
+              1
+            )
           ]),
           _vm._v(" "),
-          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs2: "" } }, [
-            _c("p", { staticClass: "pa-2 mb-0" }, [
-              _c("strong", [_vm._v("JOB PARTS:")]),
-              _vm._v(
-                " " +
-                  _vm._s(_vm._f("money")(_vm.job.job_parts_total)) +
-                  "\n\t\t\t"
-              )
-            ])
+          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs3: "" } }, [
+            _c(
+              "p",
+              { staticClass: "pa-2 mb-0 caption grey--text" },
+              [
+                _c("v-icon", { attrs: { small: "", left: "" } }, [
+                  _vm._v("settings")
+                ]),
+                _vm._v(" "),
+                _c("strong", [_vm._v("PARTS:")]),
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("money")(_vm.job.parts_total_billed)) +
+                    "\n\t\t\t"
+                )
+              ],
+              1
+            )
           ]),
           _vm._v(" "),
-          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs2: "" } }, [
-            _c("p", { staticClass: "pa-2 mb-0" }, [
-              _c("strong", [_vm._v("JOB TOTAL:")]),
-              _vm._v(
-                " " +
-                  _vm._s(_vm._f("money")(_vm.job.job_grand_total)) +
-                  "\n\t\t\t"
-              )
-            ])
+          _c("v-flex", { staticClass: "text-xs-right", attrs: { xs3: "" } }, [
+            _c(
+              "p",
+              { staticClass: "pa-2 mb-0 caption grey--text" },
+              [
+                _c("v-icon", { attrs: { small: "", left: "" } }, [
+                  _vm._v("shopping_cart")
+                ]),
+                _vm._v(" "),
+                _c("strong", [_vm._v("SUB TOTAL:")]),
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("money")(_vm.job.job_grand_total)) +
+                    "\n\t\t\t"
+                )
+              ],
+              1
+            )
           ])
         ],
         1
-      )
+      ),
+      _vm._v(" "),
+      _c("v-divider")
     ],
     1
   )
@@ -65004,16 +65072,33 @@ var render = function() {
                                 "v-layout",
                                 { attrs: { row: "" } },
                                 [
-                                  _c("v-flex", { attrs: { xs4: "" } }, [
-                                    _c("strong", [_vm._v("WO DATE:")]),
-                                    _vm._v(
-                                      " " +
-                                        _vm._s(
-                                          _vm._f("date")(_vm.workOrder.date)
-                                        ) +
-                                        "\n\t\t\t\t\t\t\t"
-                                    )
-                                  ])
+                                  _c(
+                                    "v-flex",
+                                    { attrs: { xs4: "" } },
+                                    [
+                                      _c(
+                                        "v-icon",
+                                        {
+                                          attrs: {
+                                            left: "",
+                                            small: "",
+                                            color: "black"
+                                          }
+                                        },
+                                        [_vm._v("event")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("strong", [_vm._v("WO DATE:")]),
+                                      _vm._v(
+                                        " " +
+                                          _vm._s(
+                                            _vm._f("date")(_vm.workOrder.date)
+                                          ) +
+                                          "\n\t\t\t\t\t\t\t"
+                                      )
+                                    ],
+                                    1
+                                  )
                                 ],
                                 1
                               )
@@ -65396,6 +65481,76 @@ var render = function() {
                               })
                             ],
                             2
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-container",
+                            { staticClass: "pr-4 mt-2", attrs: { fluid: "" } },
+                            [
+                              _c("v-spacer"),
+                              _vm._v(" "),
+                              _c(
+                                "v-layout",
+                                { attrs: { row: "" } },
+                                [
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-flex",
+                                    { attrs: { xs4: "" } },
+                                    [
+                                      _c("v-divider", {
+                                        staticClass: "mt-2 mb-2"
+                                      })
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-layout",
+                                { attrs: { row: "" } },
+                                [
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-flex",
+                                    {
+                                      staticClass: "text-xs-right",
+                                      attrs: { xs2: "" }
+                                    },
+                                    [
+                                      _c("p", { staticClass: "pa-2 mb-0" }, [
+                                        _c("strong", [_vm._v("PRE-TOTAL:")])
+                                      ])
+                                    ]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-flex",
+                                    {
+                                      staticClass: "text-xs-right",
+                                      attrs: { xs2: "" }
+                                    },
+                                    [
+                                      _c("p", { staticClass: "pa-2 mb-0" }, [
+                                        _vm._v(
+                                          "\n\t\t\t\t\t\t\t\t\t" +
+                                            _vm._s(
+                                              _vm._f("money")(_vm.preTotal)
+                                            ) +
+                                            "\n\t\t\t\t\t\t\t\t"
+                                        )
+                                      ])
+                                    ]
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
                           ),
                           _vm._v(" "),
                           _c(

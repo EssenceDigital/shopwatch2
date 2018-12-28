@@ -66,6 +66,7 @@
 							<!--WO date -->
 							<v-layout row>
 								<v-flex xs4>
+									<v-icon left small color="black">event</v-icon>
 									<strong>WO DATE:</strong> {{ workOrder.date | date }}
 								</v-flex>
 							</v-layout>
@@ -176,6 +177,33 @@
 
 							<!-- All jobs -->
 							<job-row v-for="job in workOrder.jobs" :job="job" :key="job.id"></job-row>
+						</v-container>
+
+						<!-- Grand totals container -->
+						<v-container fluid class="pr-4 mt-2">
+								<v-spacer></v-spacer>
+							<!-- Grand total divider -->
+							<v-layout row>
+								<v-spacer></v-spacer>
+								<v-flex xs4>
+									<v-divider class="mt-2 mb-2"></v-divider>
+								</v-flex>
+							</v-layout>
+
+							<!-- Grand total -->
+							<v-layout row>
+								<v-spacer></v-spacer>
+								<v-flex xs2 class="text-xs-right">
+									<p class="pa-2 mb-0">
+										<strong>PRE-TOTAL:</strong>
+									</p>
+								</v-flex>
+								<v-flex xs2 class="text-xs-right">
+									<p class="pa-2 mb-0">
+										{{ preTotal | money }}
+									</p>
+								</v-flex>
+							</v-layout>
 						</v-container>
 
 						<v-container fluid class="mt-5">
@@ -317,7 +345,7 @@
 				return parts;
 			},
 
-			estGrandTotal (){
+			preTotal (){
 				if(this.workOrder.jobs){
 					let total = 0;
 					this.workOrder.jobs.forEach((job) => {

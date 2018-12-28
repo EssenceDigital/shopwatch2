@@ -72,9 +72,6 @@ class JobPartsController extends Controller
 		if($this->guardWorkOrder($job->work_order_id, $job->is_complete)){
 				// Extract current parts array from Job
 				$parts = $job->parts;
-				if(!is_array($parts)){
-					$parts = [];
-				}
 				// New part to add
 				$part = $request->all();
 				// Add unique id to part

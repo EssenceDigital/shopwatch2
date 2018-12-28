@@ -1,5 +1,5 @@
 <template v-if="part">
-	<v-layout row>
+	<v-layout row class="caption">
 		<v-flex xs3>
 			<p class="pa-2 pl-3 mb-0">
 				{{ part.part_number }}

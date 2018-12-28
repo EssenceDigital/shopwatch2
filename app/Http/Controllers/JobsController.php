@@ -90,7 +90,9 @@ class JobsController extends Controller
 			// Calculate totals before saving
 			$request = $this->calculateJobTotals($request);
 			// Save job
-			$job = $this->genericSave(new Job, $request);
+			$job = new Job;
+			$job->parts = [];
+			$job = $this->genericSave($job, $request);
 			// Find and return parent work order
 			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 
