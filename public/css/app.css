@@ -4,6 +4,11 @@
 .text-center {
   text-align: center;
 }
+.full-border {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e4e4e4;
+}
 @-webkit-keyframes shake {
   59% {
     margin-left: 0;

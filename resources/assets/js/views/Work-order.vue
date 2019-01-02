@@ -159,13 +159,8 @@
 							<!-- Job headings -->
 							<v-layout v-if="workOrder.jobs.length > 0" row class="red darken-4 mt-2">
 								<v-flex xs8>
-									<h3 class="white--text pa-2">JOB REQUESTED</h3>
+									<h3 class="white--text pa-2">WORK</h3>
 								</v-flex>
-								<v-spacer></v-spacer>
-								<v-flex xs1 class="text-xs-right">
-									<h3 class="white--text pa-2">HOURS</h3>
-								</v-flex>
-								<v-flex xs1></v-flex>
 							</v-layout>
 
 							<!-- If no jobs yet show alert -->

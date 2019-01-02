@@ -39,6 +39,9 @@
 	      </v-list>
 	    </v-menu>
 		</v-flex>
+		<v-flex v-if="invoiceState" xs1>
+
+		</v-flex>
 
 		<!-- Edit part dialog -->
 		<v-dialog v-model="editDialog" persistent max-width="500px">
