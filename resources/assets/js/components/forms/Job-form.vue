@@ -21,25 +21,68 @@
 	 			v-model="form.description.value"
 	 			:error-messages="form.description.errors"
 	    ></v-textarea>
-	    <!-- Hours -->
-	    <v-flex xs3>
-				<v-text-field
-					type="number"
-					min="0"
-					step="0.1"
-		      label="Hours"
-		 			v-model="form.hours.value"
-		 			:error-messages="form.hours.errors"
-		    ></v-text-field>
-	    </v-flex>
+
+			<!-- Flat rate our hourly job -->
+			<v-checkbox
+				label="Flat Rate Job"
+				v-model="isFlatRate"
+			></v-checkbox>
+			<!-- Hourly job -->
+			<v-layout row v-if="!form.is_flat_rate.value">
+		    <v-flex xs4 class="pr-2">
+					<v-text-field
+						type="number"
+						min="0"
+						step="0.1"
+			      label="Hours"
+			 			v-model="form.hours.value"
+			 			:error-messages="form.hours.errors"
+			    ></v-text-field>
+		    </v-flex>
+				<v-flex xs4 class="pl-2">
+					<v-text-field
+						type="number"
+						min="0"
+						step="1"
+			      label="Shop Rate"
+			 			v-model="form.shop_rate.value"
+			 			:error-messages="form.hours.errors"
+			    ></v-text-field>
+		    </v-flex>
+			</v-layout>
+			<!-- Flat rate job -->
+			<v-layout row v-if="form.is_flat_rate.value">
+				<v-flex xs4 class="pr-2">
+					<v-text-field
+						type="number"
+						min="0"
+						step="1"
+			      label="Job Rate"
+			 			v-model="form.flat_rate.value"
+			 			:error-messages="form.flat_rate.errors"
+			    ></v-text-field>
+		    </v-flex>
+				<v-flex xs4 class="pl-2">
+					<v-text-field
+						type="number"
+						min="0"
+						step="1"
+						label="Job Cost"
+						v-model="form.flat_rate_cost.value"
+						:error-messages="form.flat_rate_cost.errors"
+					></v-text-field>
+				</v-flex>
+			</v-layout>
+
 			<!-- Tech -->
 			<v-select
         :items="techSelect"
         v-model="form.tech.value"
         :error-messages="form.tech.errors"
-        label="Tech"
+        label="Technician..."
         single-line
         menu-props="bottom"
+				:disable="disableSelect"
       ></v-select>
 		</template>
 	</base-form>
@@ -50,7 +93,7 @@
 	import Helpers from './../../app/helpers';
 
 	export default{
-		props: ['action', 'job', 'workOrder', 'editState'],
+		props: ['action', 'job', 'workOrder', 'editState', 'shopRate'],
 
 		data (){
 			return {
@@ -59,19 +102,29 @@
 					work_order_id: {value: '', errors: []},
 					title: {value: '', errors: []},
 					description: {value: '', errors: []},
-					hours: {value: '', errors: []},
+					is_flat_rate: {value: 0, errors: []},
+					hours: {value: 0, errors: []},
+					shop_rate: {value: '', errors: []},
+					flat_rate: {value: 0, errors: []},
+					flat_rate_cost: {value: 0, errors: []},
 					tech: {value: '', errors: []}
 				},
 				completeSelect: [
 					{ text: 'No', value: 0 },
 					{ text: 'Yes', value: 1 }
-				]
+				],
+				isFlatRate: 0,
+				disableSelect: 0
 			}
 		},
 
 		computed: {
 			techSelect (){
-				return this.$store.getters.techSelect;
+				if(!this.form.is_flat_rate.value){
+					return this.$store.getters.techSelect;
+				} else {
+					return this.$store.getters.chargeSelect;
+				}
 			}
 		},
 
@@ -88,7 +141,25 @@
 				if(id){
 					this.form.work_order_id.value = id;
 				}
+			},
+
+			shopRate (rate){
+				if(rate){
+					this.form.shop_rate.value = rate;
+				}
+			},
+
+			isFlatRate (bool){
+				if(!bool){
+					this.form.is_flat_rate.value = bool;
+					this.disableSelect = 0;
+				} else {
+					this.form.is_flat_rate.value = bool;
+					this.form.tech.value = 1;
+					this.disableSelect = 1;
+				}
 			}
+
 		},
 
 		components: {
@@ -100,7 +171,14 @@
 			saved (){
 				if(! this.editState){
 					// Clear form
-					Helpers.clearForm(this.form, 'work_order_id');
+					Helpers.clearForm(this.form, 'work_order_id', {
+						// Default values
+						hours: 0,
+						is_flat_rate: 0,
+						flat_rate: 0,
+						flat_rate_cost: 0,
+						shop_rate: this.shopRate
+					});
 				}
 				// Clear form errors
 				Helpers.clearFormErrors(this.form);
@@ -117,6 +195,9 @@
 			// Populate form with supplied job, if needed
 			if(this.job){
 				Helpers.populateForm(this.form, this.job);
+			} else {
+				// If not an edit job, apply the default shop rate
+				this.form.shop_rate.value = this.shopRate;
 			}
 			// Set WO ID
 			if(this.workOrder){

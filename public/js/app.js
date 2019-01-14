@@ -53034,11 +53034,22 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
 		},
 		techSelect: function techSelect(state) {
 			var users = state.users,
-			    select = [{ text: "Tech...", value: "" }];
+			    select = [];
 			// Create select array
 			users.forEach(function (user) {
 				if (user.role == 'tech') {
 					select.push({ text: user.name, value: user.name });
+				}
+			});
+			return select;
+		},
+		chargeSelect: function chargeSelect(state) {
+			var users = state.users,
+			    select = [];
+			// Create select array
+			users.forEach(function (user) {
+				if (user.role == 'chrge') {
+					select.push({ text: user.name, value: user.id });
 				}
 			});
 			return select;
@@ -62959,6 +62970,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -62978,7 +62990,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			confirmInvoiceDialog: false,
 			invoiceCreating: false,
 			applyTax: true,
-			shopSupplyRate: 2
+			shopSupplyRate: '',
+			shopRate: ''
 		};
 	},
 
@@ -63163,12 +63176,55 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-	props: ['action', 'job', 'workOrder', 'editState'],
+	props: ['action', 'job', 'workOrder', 'editState', 'shopRate'],
 
 	data: function data() {
 		return {
@@ -63177,17 +63233,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				work_order_id: { value: '', errors: [] },
 				title: { value: '', errors: [] },
 				description: { value: '', errors: [] },
-				hours: { value: '', errors: [] },
+				is_flat_rate: { value: 0, errors: [] },
+				hours: { value: 0, errors: [] },
+				shop_rate: { value: '', errors: [] },
+				flat_rate: { value: 0, errors: [] },
+				flat_rate_cost: { value: 0, errors: [] },
 				tech: { value: '', errors: [] }
 			},
-			completeSelect: [{ text: 'No', value: 0 }, { text: 'Yes', value: 1 }]
+			completeSelect: [{ text: 'No', value: 0 }, { text: 'Yes', value: 1 }],
+			isFlatRate: 0,
+			disableSelect: 0
 		};
 	},
 
 
 	computed: {
 		techSelect: function techSelect() {
-			return this.$store.getters.techSelect;
+			if (!this.form.is_flat_rate.value) {
+				return this.$store.getters.techSelect;
+			} else {
+				return this.$store.getters.chargeSelect;
+			}
 		}
 	},
 
@@ -63203,6 +63269,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			if (id) {
 				this.form.work_order_id.value = id;
 			}
+		},
+		shopRate: function shopRate(rate) {
+			if (rate) {
+				this.form.shop_rate.value = rate;
+			}
+		},
+		isFlatRate: function isFlatRate(bool) {
+			if (!bool) {
+				this.form.is_flat_rate.value = bool;
+				this.disableSelect = 0;
+			} else {
+				this.form.is_flat_rate.value = bool;
+				this.form.tech.value = 1;
+				this.disableSelect = 1;
+			}
 		}
 	},
 
@@ -63214,7 +63295,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		saved: function saved() {
 			if (!this.editState) {
 				// Clear form
-				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id');
+				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id', {
+					// Default values
+					hours: 0,
+					is_flat_rate: 0,
+					flat_rate: 0,
+					flat_rate_cost: 0,
+					shop_rate: this.shopRate
+				});
 			}
 			// Clear form errors
 			__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearFormErrors(this.form);
@@ -63230,6 +63318,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		// Populate form with supplied job, if needed
 		if (this.job) {
 			__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].populateForm(this.form, this.job);
+		} else {
+			// If not an edit job, apply the default shop rate
+			this.form.shop_rate.value = this.shopRate;
 		}
 		// Set WO ID
 		if (this.workOrder) {
@@ -63287,37 +63378,139 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _c(
-            "v-flex",
-            { attrs: { xs3: "" } },
-            [
-              _c("v-text-field", {
-                attrs: {
-                  type: "number",
-                  min: "0",
-                  step: "0.1",
-                  label: "Hours",
-                  "error-messages": _vm.form.hours.errors
-                },
-                model: {
-                  value: _vm.form.hours.value,
-                  callback: function($$v) {
-                    _vm.$set(_vm.form.hours, "value", $$v)
-                  },
-                  expression: "form.hours.value"
-                }
-              })
-            ],
-            1
-          ),
+          _c("v-checkbox", {
+            attrs: { label: "Flat Rate Job" },
+            model: {
+              value: _vm.isFlatRate,
+              callback: function($$v) {
+                _vm.isFlatRate = $$v
+              },
+              expression: "isFlatRate"
+            }
+          }),
+          _vm._v(" "),
+          !_vm.form.is_flat_rate.value
+            ? _c(
+                "v-layout",
+                { attrs: { row: "" } },
+                [
+                  _c(
+                    "v-flex",
+                    { staticClass: "pr-2", attrs: { xs4: "" } },
+                    [
+                      _c("v-text-field", {
+                        attrs: {
+                          type: "number",
+                          min: "0",
+                          step: "0.1",
+                          label: "Hours",
+                          "error-messages": _vm.form.hours.errors
+                        },
+                        model: {
+                          value: _vm.form.hours.value,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form.hours, "value", $$v)
+                          },
+                          expression: "form.hours.value"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-flex",
+                    { staticClass: "pl-2", attrs: { xs4: "" } },
+                    [
+                      _c("v-text-field", {
+                        attrs: {
+                          type: "number",
+                          min: "0",
+                          step: "1",
+                          label: "Shop Rate",
+                          "error-messages": _vm.form.hours.errors
+                        },
+                        model: {
+                          value: _vm.form.shop_rate.value,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form.shop_rate, "value", $$v)
+                          },
+                          expression: "form.shop_rate.value"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.form.is_flat_rate.value
+            ? _c(
+                "v-layout",
+                { attrs: { row: "" } },
+                [
+                  _c(
+                    "v-flex",
+                    { staticClass: "pr-2", attrs: { xs4: "" } },
+                    [
+                      _c("v-text-field", {
+                        attrs: {
+                          type: "number",
+                          min: "0",
+                          step: "1",
+                          label: "Job Rate",
+                          "error-messages": _vm.form.flat_rate.errors
+                        },
+                        model: {
+                          value: _vm.form.flat_rate.value,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form.flat_rate, "value", $$v)
+                          },
+                          expression: "form.flat_rate.value"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-flex",
+                    { staticClass: "pl-2", attrs: { xs4: "" } },
+                    [
+                      _c("v-text-field", {
+                        attrs: {
+                          type: "number",
+                          min: "0",
+                          step: "1",
+                          label: "Job Cost",
+                          "error-messages": _vm.form.flat_rate_cost.errors
+                        },
+                        model: {
+                          value: _vm.form.flat_rate_cost.value,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form.flat_rate_cost, "value", $$v)
+                          },
+                          expression: "form.flat_rate_cost.value"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            : _vm._e(),
           _vm._v(" "),
           _c("v-select", {
             attrs: {
               items: _vm.techSelect,
               "error-messages": _vm.form.tech.errors,
-              label: "Tech",
+              label: "Technician...",
               "single-line": "",
-              "menu-props": "bottom"
+              "menu-props": "bottom",
+              disable: _vm.disableSelect
             },
             model: {
               value: _vm.form.tech.value,
@@ -65631,7 +65824,8 @@ var render = function() {
                           _c("job-form", {
                             attrs: {
                               action: "createJob",
-                              "work-order": _vm.workOrder.id
+                              "work-order": _vm.workOrder.id,
+                              "shop-rate": _vm.busConfig.shop_rate
                             },
                             on: {
                               saved: function($event) {
@@ -67099,44 +67293,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -67710,7 +67866,7 @@ var render = function() {
                               _c(
                                 "v-layout",
                                 {
-                                  staticClass: "red lighten-4 pt-2",
+                                  staticClass: "grey lighten-4 pt-2",
                                   attrs: { row: "" }
                                 },
                                 [
@@ -67975,131 +68131,18 @@ var render = function() {
                           _c(
                             "v-container",
                             { staticClass: "pa-2", attrs: { fluid: "" } },
-                            [
-                              _c(
-                                "v-layout",
-                                {
-                                  staticClass: "red darken-4 mt-2",
-                                  attrs: { row: "" }
-                                },
-                                [
-                                  _c("v-flex", { attrs: { xs8: "" } }, [
-                                    _c(
-                                      "h3",
-                                      { staticClass: "white--text pa-2" },
-                                      [_vm._v("JOB PERFORMED")]
-                                    )
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    {
-                                      staticClass: "text-xs-right",
-                                      attrs: { xs1: "" }
-                                    },
-                                    [
-                                      _c(
-                                        "h3",
-                                        { staticClass: "white--text pa-2" },
-                                        [_vm._v("HOURS")]
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    {
-                                      staticClass: "text-xs-right",
-                                      attrs: { xs1: "" }
-                                    },
-                                    [
-                                      _c(
-                                        "h3",
-                                        { staticClass: "white--text pa-2" },
-                                        [_vm._v("RATE")]
-                                      )
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    {
-                                      staticClass: "text-xs-right",
-                                      attrs: { xs2: "" }
-                                    },
-                                    [
-                                      _c(
-                                        "h3",
-                                        { staticClass: "white--text pa-2" },
-                                        [_vm._v("TOTAL")]
-                                      )
-                                    ]
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _vm._l(_vm.invoice.work_order.jobs, function(
-                                job
-                              ) {
-                                return _c("job-row", {
-                                  key: job.id,
-                                  attrs: { job: job, "invoice-state": true }
-                                })
-                              }),
-                              _vm._v(" "),
-                              _c("v-divider", { staticClass: "mt-2 mb-2" })
-                            ],
-                            2
+                            _vm._l(_vm.invoice.work_order.jobs, function(job) {
+                              return _c("job-row", {
+                                key: job.id,
+                                attrs: { job: job, "invoice-state": true }
+                              })
+                            })
                           ),
                           _vm._v(" "),
                           _c(
                             "v-container",
                             { staticClass: "pa-2 mt-2", attrs: { fluid: "" } },
                             [
-                              _c(
-                                "v-layout",
-                                { attrs: { row: "" } },
-                                [
-                                  _c("v-spacer"),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    {
-                                      staticClass: "text-xs-right",
-                                      attrs: { xs2: "" }
-                                    },
-                                    [
-                                      _c("p", { staticClass: "pa-2 mb-0" }, [
-                                        _c("strong", [_vm._v("GST RATE:")])
-                                      ])
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    {
-                                      staticClass: "text-xs-right",
-                                      attrs: { xs2: "" }
-                                    },
-                                    [
-                                      _c("p", { staticClass: "pa-2 mb-0" }, [
-                                        _vm._v(
-                                          "\n\t\t\t\t\t\t\t\t\t" +
-                                            _vm._s(
-                                              _vm._f("gst")(
-                                                _vm.invoice.gst_rate
-                                              )
-                                            ) +
-                                            "\n\t\t\t\t\t\t\t\t"
-                                        )
-                                      ])
-                                    ]
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
                               _c(
                                 "v-layout",
                                 { attrs: { row: "" } },
@@ -68260,7 +68303,7 @@ var render = function() {
                                           "\n\t\t\t\t\t\t\t\t\t" +
                                             _vm._s(
                                               _vm._f("money")(
-                                                _vm.invoice.shop_supply_rate
+                                                _vm.invoice.shop_supply_total
                                               )
                                             ) +
                                             "\n\t\t\t\t\t\t\t\t"
@@ -68472,52 +68515,6 @@ var render = function() {
                           _c(
                             "v-card",
                             [
-                              _c(
-                                "v-system-bar",
-                                {
-                                  staticClass: "warning",
-                                  attrs: { window: "" }
-                                },
-                                [
-                                  _c("v-spacer"),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-tooltip",
-                                    { attrs: { top: "" } },
-                                    [
-                                      _c(
-                                        "v-btn",
-                                        {
-                                          staticClass: "mr-0",
-                                          attrs: {
-                                            slot: "activator",
-                                            icon: ""
-                                          },
-                                          on: {
-                                            click: function($event) {
-                                              _vm.rollbackDialog = false
-                                            }
-                                          },
-                                          slot: "activator"
-                                        },
-                                        [
-                                          _c(
-                                            "v-icon",
-                                            { staticClass: "white--text mr-0" },
-                                            [_vm._v("close")]
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c("span", [_vm._v("Close dialog")])
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
                               _c("v-card-text", [
                                 _vm._v(
                                   "\n\t          Roll this invoice back to work order state?\n\t        "
@@ -68532,7 +68529,7 @@ var render = function() {
                                   _c(
                                     "v-btn",
                                     {
-                                      attrs: { color: "error", flat: "" },
+                                      attrs: { flat: "" },
                                       nativeOn: {
                                         click: function($event) {
                                           _vm.rollbackDialog = false
@@ -68546,7 +68543,7 @@ var render = function() {
                                     "v-btn",
                                     {
                                       attrs: {
-                                        color: "success",
+                                        color: "teal",
                                         flat: "",
                                         loading: _vm.isRemoving
                                       },

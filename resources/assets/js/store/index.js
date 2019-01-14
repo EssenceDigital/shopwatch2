@@ -517,7 +517,7 @@ export const store = new Vuex.Store({
 		},
 		techSelect (state){
 			var users = state.users,
-          select = [{ text: "Tech...", value: "" }];
+          select = [];
       // Create select array
       users.forEach(function(user){
       	if(user.role == 'tech'){
@@ -525,7 +525,17 @@ export const store = new Vuex.Store({
       	}
       });
       return select;
-
+		},
+		chargeSelect (state){
+			var users = state.users,
+					select = [];
+      // Create select array
+      users.forEach(function(user){
+      	if(user.role == 'chrge'){
+      		select.push({ text: user.name, value: user.id });
+      	}
+      });
+      return select;
 		}
 	}
 

@@ -12,15 +12,22 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         DB::table('bus_settings')->insert([
-            'shop_rate' => 89.99,
+            'shop_rate' => 85,
             'gst_rate' => 0.05,
-            'shop_supply_rate' => 5.99,
+            'shop_supply_rate' => 2,
             'city' => 'Lethbridge',
             'province' => 'Alberta',
             'address' => '145 35 St. North',
             'postal_code' => 'T3T U8Y',
             'phone' => '403-942-0200'
-        ]);    
+        ]);
+
+        DB::table('users')->insert([
+            "name"=> "Charge Out",
+            "email"=> "chargeout@noemail.com",
+            "password"=> bcrypt(uniqid()),
+            "role" => "chrge"
+        ]);
 
         DB::table('users')->insert([
             "name"=> "Matt",
@@ -43,7 +50,7 @@ class DatabaseSeeder extends Seeder
             "last" => "Romeo",
             "phone_one" => "545-545-4444",
             "phone_two" => ""
-        ]);  
+        ]);
 
         DB::table('vehicles')->insert([
             "customer_id" => 1,
@@ -52,12 +59,12 @@ class DatabaseSeeder extends Seeder
             "year" => 2006,
             "vin" => "HS45ETGDGD4",
             "plate_number" => "TYE874"
-        ]);   
+        ]);
 
         DB::table('work_orders')->insert([
             "vehicle_id" => 1,
             "created_by" => "Matt",
             "customer_id" => 1
-        ]);                       	
+        ]);
     }
 }

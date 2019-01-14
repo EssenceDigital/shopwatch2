@@ -29,8 +29,10 @@ class SaveJob extends FormRequest
             'tech' => 'required|string|max:50',
             'title' => 'required|string|max:100',
             'description' => 'string|max:255|nullable',
+            'is_flat_rate' => 'required|boolean',
             'hours' => 'required|numeric|between:0,1000000000000.9',
-            'shop_rate' => 'numeric|between:0,1000000000000.99|nullable'
+            'shop_rate' => 'required|numeric|between:0,1000000000000.99',
+            'flat_rate' => 'required|numeric|between:0,1000000000000.99'
         ];
     }
 }

@@ -221,6 +221,7 @@
 		      	<job-form
 							action="createJob"
 							:work-order="workOrder.id"
+							:shop-rate="busConfig.shop_rate"
 							@saved="addJobDialog = false"
 							@close="addJobDialog = false"
 						></job-form>
@@ -319,7 +320,8 @@
 				confirmInvoiceDialog: false,
 				invoiceCreating: false,
 				applyTax: true,
-				shopSupplyRate: 2
+				shopSupplyRate: '',
+				shopRate: ''
 			}
 		},
 

@@ -37,10 +37,22 @@ class JobsController extends Controller
 			$shop_rate = BusSetting::findOrFail(1)->shop_rate;
 		}
 
-		// Calculate the current labour total
-		$labour_total = round((floatval($request->hours) * floatval($shop_rate)), 3);
-		// Calculate the current tech pay total
-		$tech_pay_total = round(floatval($request->hours) * floatval($tech->hourly_wage), 3);
+		//
+		// For regular hourly jobs
+		//
+		if(! $request->is_flat_rate){
+			// Calculate the current labour total
+			$labour_total = round((floatval($request->hours) * floatval($shop_rate)), 3);
+			// Calculate the current tech pay total
+			$tech_pay_total = round(floatval($request->hours) * floatval($tech->hourly_wage), 3);
+		} else {
+			//
+			// For flat rate Jobs
+			//
+			$labour_total = round(floatval($request->flat_rate), 3);
+
+		}
+
 
 		// Determine if the grand total should be calculated, or assinged the labour total
 		if(! $job){
@@ -51,16 +63,26 @@ class JobsController extends Controller
 			$grand_total = (floatval($job->job_grand_total) - floatval($job->job_labour_total)) + floatval($labour_total);
 		}
 
-		// Merge the calculated data with the request
-		$request->merge([
-			'tech' => $tech->name,
-			'tech_hourly_rate' => $tech->hourly_wage,
-			'tech_pay_total' => $tech_pay_total,
-			'shop_rate' => $shop_rate,
-			'job_labour_total' => $labour_total,
-			// Will get updated later if there is parts on this job (likely)
-			'job_grand_total' => $grand_total
-		]);
+		//
+		// For regular hourly Jobs
+		//
+		if(! $request->is_flat_rate){
+			// Merge the calculated data with the request
+			$request->merge([
+				'tech' => $tech->name,
+				'tech_id' => $tech->id,
+				'tech_hourly_rate' => $tech->hourly_wage,
+				'tech_pay_total' => $tech_pay_total,
+				'shop_rate' => $shop_rate,
+				'job_labour_total' => $labour_total,
+				// Will get updated later if there is parts on this job (likely)
+				'job_grand_total' => $grand_total
+			]);
+		} else {
+			// For flat rate Jobs
+
+		}
+
 
 		return $request;
 	}

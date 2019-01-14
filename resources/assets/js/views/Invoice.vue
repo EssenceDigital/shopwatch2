@@ -76,7 +76,7 @@
 								</v-flex>
 							</v-layout>
 
-							<v-layout row class="red lighten-4 pt-2">
+							<v-layout row class="grey lighten-4 pt-2">
 								<!-- Customer info -->
 								<v-flex xs6>
 									<v-container fluid>
@@ -148,26 +148,10 @@
 
 						<!-- Jobs heading container -->
 						<v-container fluid class="pa-2">
-							<!-- Job headings -->
-							<v-layout row class="red darken-4 mt-2">
-								<v-flex xs8>
-									<h3 class="white--text pa-2">JOB PERFORMED</h3>
-								</v-flex>
-								<v-flex xs1 class="text-xs-right">
-									<h3 class="white--text pa-2">HOURS</h3>
-								</v-flex>
-								<v-flex xs1 class="text-xs-right">
-									<h3 class="white--text pa-2">RATE</h3>
-								</v-flex>
-								<v-flex xs2 class="text-xs-right">
-									<h3 class="white--text pa-2">TOTAL</h3>
-								</v-flex>
-							</v-layout>
 
 							<!-- All jobs -->
 							<job-row v-for="job in invoice.work_order.jobs" :job="job" :key="job.id" :invoice-state="true"></job-row>
 
-							<v-divider class="mt-2 mb-2"></v-divider>
 
 							<!-- Job labour total -->
 							<!--<v-layout row>
@@ -187,19 +171,6 @@
 
 						<!-- Grand totals container -->
 						<v-container fluid class="pa-2 mt-2">
-							<v-layout row>
-								<v-spacer></v-spacer>
-								<v-flex xs2 class="text-xs-right">
-									<p class="pa-2 mb-0">
-										<strong>GST RATE:</strong>
-									</p>
-								</v-flex>
-								<v-flex xs2 class="text-xs-right">
-									<p class="pa-2 mb-0">
-										{{ invoice.gst_rate | gst }}
-									</p>
-								</v-flex>
-							</v-layout>
 							<v-layout row>
 								<v-spacer></v-spacer>
 								<v-flex xs2 class="text-xs-right">
@@ -248,7 +219,7 @@
 								</v-flex>
 								<v-flex xs2 class="text-xs-right">
 									<p class="pa-2 mb-0">
-										{{ invoice.shop_supply_rate | money }}
+										{{ invoice.shop_supply_total | money }}
 									</p>
 								</v-flex>
 							</v-layout>
@@ -308,22 +279,13 @@
 		    <!-- Remove dialog -->
 		    <v-dialog v-model="rollbackDialog" persistent max-width="300px">
 		      <v-card>
-		        <v-system-bar window class="warning">
-		          <v-spacer></v-spacer>
-		          <v-tooltip top>
-		            <v-btn icon class="mr-0" slot="activator" @click="rollbackDialog = false">
-		              <v-icon class="white--text mr-0">close</v-icon>
-		            </v-btn>
-		            <span>Close dialog</span>
-		          </v-tooltip>
-		        </v-system-bar>
 		        <v-card-text>
 		          Roll this invoice back to work order state?
 		        </v-card-text>
 		        <v-card-actions>
 		        	<v-spacer></v-spacer>
-							<v-btn color="error" flat @click.native="rollbackDialog = false">Cancel</v-btn>
-		          <v-btn color="success" flat :loading="isRemoving" @click.native="rollback">Yes</v-btn>
+							<v-btn flat @click.native="rollbackDialog = false">Cancel</v-btn>
+		          <v-btn color="teal" flat :loading="isRemoving" @click.native="rollback">Yes</v-btn>
 		          <v-spacer></v-spacer>
 		        </v-card-actions>
 		      </v-card>
