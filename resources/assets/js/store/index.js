@@ -521,7 +521,7 @@ export const store = new Vuex.Store({
       // Create select array
       users.forEach(function(user){
       	if(user.role == 'tech'){
-      		select.push({ text: user.name, value: user.name });
+      		select.push({ text: user.name, value: user.id });
       	}
       });
       return select;

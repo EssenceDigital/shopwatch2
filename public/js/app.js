@@ -53038,7 +53038,7 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
 			// Create select array
 			users.forEach(function (user) {
 				if (user.role == 'tech') {
-					select.push({ text: user.name, value: user.name });
+					select.push({ text: user.name, value: user.id });
 				}
 			});
 			return select;
@@ -63219,6 +63219,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -63233,16 +63234,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				work_order_id: { value: '', errors: [] },
 				title: { value: '', errors: [] },
 				description: { value: '', errors: [] },
-				is_flat_rate: { value: 0, errors: [] },
-				hours: { value: 0, errors: [] },
-				shop_rate: { value: '', errors: [] },
+				is_flat_rate: { value: false, errors: [] },
 				flat_rate: { value: 0, errors: [] },
 				flat_rate_cost: { value: 0, errors: [] },
-				tech: { value: '', errors: [] }
+				hours: { value: 0, errors: [] },
+				shop_rate: { value: '', errors: [] },
+				tech_id: { value: '', errors: [] }
 			},
 			completeSelect: [{ text: 'No', value: 0 }, { text: 'Yes', value: 1 }],
-			isFlatRate: 0,
-			disableSelect: 0
+			isFlatRate: false
 		};
 	},
 
@@ -63278,11 +63278,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		isFlatRate: function isFlatRate(bool) {
 			if (!bool) {
 				this.form.is_flat_rate.value = bool;
-				this.disableSelect = 0;
 			} else {
 				this.form.is_flat_rate.value = bool;
-				this.form.tech.value = 1;
-				this.disableSelect = 1;
+				this.form.tech_id.value = 1;
 			}
 		}
 	},
@@ -63378,16 +63376,18 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _c("v-checkbox", {
-            attrs: { label: "Flat Rate Job" },
-            model: {
-              value: _vm.isFlatRate,
-              callback: function($$v) {
-                _vm.isFlatRate = $$v
-              },
-              expression: "isFlatRate"
-            }
-          }),
+          !_vm.editState
+            ? _c("v-checkbox", {
+                attrs: { label: "Flat Rate Job" },
+                model: {
+                  value: _vm.isFlatRate,
+                  callback: function($$v) {
+                    _vm.isFlatRate = $$v
+                  },
+                  expression: "isFlatRate"
+                }
+              })
+            : _vm._e(),
           _vm._v(" "),
           !_vm.form.is_flat_rate.value
             ? _c(
@@ -63506,18 +63506,18 @@ var render = function() {
           _c("v-select", {
             attrs: {
               items: _vm.techSelect,
-              "error-messages": _vm.form.tech.errors,
+              "error-messages": _vm.form.tech_id.errors,
               label: "Technician...",
               "single-line": "",
               "menu-props": "bottom",
-              disable: _vm.disableSelect
+              disabled: _vm.form.is_flat_rate.value
             },
             model: {
-              value: _vm.form.tech.value,
+              value: _vm.form.tech_id.value,
               callback: function($$v) {
-                _vm.$set(_vm.form.tech, "value", $$v)
+                _vm.$set(_vm.form.tech_id, "value", $$v)
               },
-              expression: "form.tech.value"
+              expression: "form.tech_id.value"
             }
           })
         ],

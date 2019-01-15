@@ -26,21 +26,20 @@ class JobsController extends Controller
 	private function calculateJobTotals($request, $job = false)
 	{
 		// Get the tech (user) first
-		$tech = User::where('name', $request->tech)->first();
-
-		// If a shop rate was with the request then assign that
-		if($request->has('shop_rate')){
-			// Set custom shop rate for job
-			$shop_rate = $request->shop_rate;
-		} else {
-			// No shop rate present in request then get the current shop rate from business settings
-			$shop_rate = BusSetting::findOrFail(1)->shop_rate;
-		}
+		$tech = User::findOrFail($request->tech_id);
 
 		//
 		// For regular hourly jobs
 		//
 		if(! $request->is_flat_rate){
+			// If a shop rate was with the request then assign that
+			if($request->has('shop_rate')){
+				// Set custom shop rate for job
+				$shop_rate = $request->shop_rate;
+			} else {
+				// No shop rate present in request then get the current shop rate from business settings
+				$shop_rate = BusSetting::findOrFail(1)->shop_rate;
+			}
 			// Calculate the current labour total
 			$labour_total = round((floatval($request->hours) * floatval($shop_rate)), 3);
 			// Calculate the current tech pay total
@@ -50,9 +49,7 @@ class JobsController extends Controller
 			// For flat rate Jobs
 			//
 			$labour_total = round(floatval($request->flat_rate), 3);
-
 		}
-
 
 		// Determine if the grand total should be calculated, or assinged the labour total
 		if(! $job){
@@ -79,10 +76,17 @@ class JobsController extends Controller
 				'job_grand_total' => $grand_total
 			]);
 		} else {
+			//
 			// For flat rate Jobs
-
+			//
+			$request->merge([
+				'tech' => $tech->name,
+				'tech_id' => $tech->id,
+				'job_labour_total' => $labour_total,
+				// Will get updated later if there is parts on this job (likely)
+				'job_grand_total' => $grand_total
+			]);
 		}
-
 
 		return $request;
 	}
