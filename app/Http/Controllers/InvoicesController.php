@@ -102,6 +102,7 @@ class InvoicesController extends Controller
 	    	$invoice = new Invoice;
 	    	// Assign basic invoice values
 	    	$invoice->created_by = Auth::user()->name;
+        $invoice->po_number = $request->po_number;
 	    	$invoice->date = date('Y-m-d');
 	    	$invoice->work_order_id = $wo->id;
 	    	$invoice->vehicle_id = $wo->vehicle_id;

@@ -25,11 +25,11 @@ class UpdateJob extends FormRequest
     {
         return [
             'id' => 'numeric|nullable',
-            'tech' => 'required|string|max:50',
+            'tech_id' => 'required|numeric',
             'title' => 'required|string|max:100',
             'description' => 'string|max:255|nullable',
             'hours' => 'required|numeric|between:0,1000000000000.9',
-            'shop_rate' => 'numeric|between:0,1000000000000.99|nullable'            
+            'shop_rate' => 'numeric|between:0,1000000000000.99|nullable'
         ];
     }
 }

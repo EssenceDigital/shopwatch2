@@ -13,10 +13,16 @@
 			      <span>Options</span>
 			    </v-tooltip>
 					<v-tooltip top>
-				    <v-btn color="primary" left slot="activator" @click="addJobDialog = true">
-				      <v-icon left>add_circle_outline</v-icon> Job
+				    <v-btn color="primary" left slot="activator" @click="premadeJobDialog = true">
+				      <v-icon left>add_circle_outline</v-icon> Premade Job
 				    </v-btn>
-			      <span>Add job</span>
+			      <span>Premade job</span>
+			    </v-tooltip>
+					<v-tooltip top>
+				    <v-btn color="primary" left slot="activator" @click="addJobDialog = true">
+				      <v-icon left>add_circle_outline</v-icon> New Job
+				    </v-btn>
+			      <span>New job</span>
 			    </v-tooltip>
 					<v-tooltip top>
 				    <v-btn color="teal" dark left slot="activator" @click="confirmInvoiceDialog = true">
@@ -227,6 +233,14 @@
 						></job-form>
 		      </v-dialog>
 
+					<!-- Premade job dialog -->
+					<v-dialog v-model="premadeJobDialog" persistent max-width="500px">
+						<premade-job-form
+							@added="addPremadeJob"
+							@close="premadeJobDialog = false"
+						></premade-job-form>
+					</v-dialog>
+
 					<!-- WO options (edit) dialog -->
 					<v-dialog v-model="woOptionsDialog" persistent max-width="500px">
 	        	<wo-form
@@ -247,10 +261,20 @@
 									<v-spacer></v-spacer>
 									<v-flex xs5>
 										<v-text-field
+								      label="PO Number"
+								 			v-model="poNumber"
+								    ></v-text-field>
+							    </v-flex>
+									<v-spacer></v-spacer>
+								</v-layout>
+								<v-layout row>
+									<v-spacer></v-spacer>
+									<v-flex xs4>
+										<v-text-field
 											type="number"
 											min="1"
 											step="1"
-								      label="Shop Supply Rate"
+								      label="Shop Supplies"
 								 			v-model="shopSupplyRate"
 								    ></v-text-field>
 							    </v-flex>
@@ -305,6 +329,7 @@
 	import Layout from './_Layout';
 	import WoForm from './../components/forms/Work-order-form';
 	import JobForm from './../components/forms/Job-form';
+	import PremadeJobForm from './../components/forms/Premade-job-form';
 	import JobRow from './../components/tickets/Job-row';
 	import PartRow from './../components/tickets/Part-row';
 
@@ -315,11 +340,13 @@
 			return {
 				componentLoading: true,
 				addJobDialog: false,
+				premadeJobDialog: false,
 				removeWoDialog: false,
 				woOptionsDialog: false,
 				confirmInvoiceDialog: false,
 				invoiceCreating: false,
 				applyTax: true,
+				poNumber: '',
 				shopSupplyRate: '',
 				shopRate: ''
 			}
@@ -379,7 +406,8 @@
 			'job-form': JobForm,
 			'job-row': JobRow,
 			'part-row': PartRow,
-			'wo-form': WoForm
+			'wo-form': WoForm,
+			'premade-job-form': PremadeJobForm
 		},
 
 		methods: {
@@ -389,6 +417,7 @@
 				// Dispatch action
 				this.$store.dispatch('createInvoice', {
 					work_order_id: this.id,
+					po_number: this.poNumber,
 					apply_tax: this.applyTax,
 					shop_supply_rate: this.shopSupplyRate
 				})
@@ -417,6 +446,10 @@
 							}
 						}
 					});
+			},
+
+			addPremadeJob (job){
+				console.log(job);
 			},
 
 			removed (){

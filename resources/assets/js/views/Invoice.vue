@@ -62,6 +62,15 @@
 									<strong>WO DATE:</strong> {{ invoice.work_order.date | date }}
 								</v-flex>
 							</v-layout>
+							<!-- PO number -->
+							<v-layout
+								v-if="invoice.po_number"
+								row
+							>
+								<v-flex xs4>
+									<strong>PO NUMBER:</strong> {{ invoice.po_number }}
+								</v-flex>
+							</v-layout>
 						</v-container>
 
 						<!-- Customer and vehicle container -->

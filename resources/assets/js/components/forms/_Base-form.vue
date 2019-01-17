@@ -8,12 +8,12 @@
 <template>
   <div>
     <v-card class="elevation-2 grey lighten-4">
-      <v-card-title>
+      <!--<v-card-title>
         <h3 class="font-weight-thin ml-2">
           <v-icon>{{ titleIcon }}</v-icon>
           {{ title }}
         </h3>
-      </v-card-title>
+      </v-card-title>-->
 
       <v-card-text>
         <v-form>

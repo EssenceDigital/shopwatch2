@@ -9,7 +9,10 @@
 
 			<v-spacer></v-spacer>
 			<!-- Show for all states -->
-			<v-flex xs1 class="text-xs-right">
+			<v-flex
+				v-if="!job.is_flat_rate"
+				xs1 class="text-xs-right"
+			>
 				<h3 class="pt-2 pb-2 pr-0 pl-2 mb-0">HOURS</h3>
 			</v-flex>
 			<!-- Only show spacer if NOT invoice state -->
@@ -66,7 +69,11 @@
 			<v-spacer></v-spacer>
 
 			<!-- Show for all states -->
-			<v-flex xs1 class="text-xs-right">
+			<v-flex
+				v-if="!job.is_flat_rate"
+				xs1
+				class="text-xs-right"
+			>
 				<p class="pt-2 pr-2 mb-0">
 					{{ job.hours }}
 				</p>
@@ -88,7 +95,10 @@
 		        <v-list-tile @click="editJobDialog = true">
 		          <v-list-tile-title>Edit job</v-list-tile-title>
 		        </v-list-tile>
-		        <v-list-tile @click="addPartsDialog = true">
+		        <v-list-tile
+							v-if="!job.is_flat_rate"
+							@click="addPartsDialog = true"
+						>
 		          <v-list-tile-title>Add part</v-list-tile-title>
 		        </v-list-tile>
 		      </v-list>
@@ -160,14 +170,21 @@
 		<v-divider></v-divider>
 		<v-layout row>
 			<v-spacer></v-spacer>
-			<v-flex xs3 class="text-xs-right">
-
+			<v-flex
+				v-if="!job.is_flat_rate"
+				xs3
+				class="text-xs-right"
+			>
 				<p class="pa-2 mb-0 caption grey--text">
 					<v-icon small left>build</v-icon>
 					<strong>LABOUR:</strong> {{ job.job_labour_total | money }}
 				</p>
 			</v-flex>
-			<v-flex xs3 class="text-xs-right">
+			<v-flex
+				v-if="!job.is_flat_rate"
+				xs3
+				class="text-xs-right"
+			>
 				<p class="pa-2 mb-0 caption grey--text">
 					<v-icon small left>settings</v-icon>
 					<strong>PARTS:</strong> {{ job.parts_total_billed | money }}

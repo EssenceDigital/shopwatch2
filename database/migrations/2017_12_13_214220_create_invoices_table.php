@@ -22,6 +22,7 @@ class CreateInvoicesTable extends Migration
             $table->integer('vehicle_id')->unsigned();
             $table->foreign('vehicle_id')->references('id')->on('vehicles');
             $table->string('created_by', 50);
+            $table->string('po_number', 50)->nullable();
             $table->date('date')->nullable();
             $table->boolean('is_paid')->default(false);
             $table->string('payment_method', 10)->nullable();

@@ -26,9 +26,10 @@ class SaveJob extends FormRequest
         return [
             'id' => 'numeric|nullable',
             'work_order_id' => 'required|numeric',
-            'tech' => 'required|numeric',
+            'tech_id' => 'required|numeric',
             'title' => 'required|string|max:100',
             'description' => 'string|max:255|nullable',
+            'parts' => 'json|nullable',
             'is_flat_rate' => 'required|boolean',
             'hours' => 'required|numeric|between:0,1000000000000.9',
             'shop_rate' => 'required|numeric|between:0,1000000000000.99',

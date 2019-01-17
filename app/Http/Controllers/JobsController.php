@@ -115,16 +115,23 @@ class JobsController extends Controller
 		if($this->ensureWorkOrderIsOpen($request->work_order_id)){
 			// Calculate totals before saving
 			$request = $this->calculateJobTotals($request);
-			// Save job
+			// Start job
 			$job = new Job;
-			$job->parts = [];
+			// If the request has part its a premade job so add the parts now
+			if($request->has('parts')){
+				$job->parts = $request->parts;
+			} else {
+				// Not a premade job, parts gets set to an array
+				$job->parts = [];
+			}
+			// Save job
 			$job = $this->genericSave($job, $request);
 			// Find and return parent work order
 			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);
+	      return response()->json($this->woGuardResponse, 422);
 		}
 	}
 

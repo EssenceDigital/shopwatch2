@@ -86,12 +86,16 @@
 				:disabled="form.is_flat_rate.value"
       ></v-select>
 		</template>
+
+
+
 	</base-form>
 </template>
 
 <script>
 	import BaseForm from './_Base-form';
 	import Helpers from './../../app/helpers';
+
 
 	export default{
 		props: ['action', 'job', 'workOrder', 'editState', 'shopRate'],
@@ -182,6 +186,10 @@
 				Helpers.clearFormErrors(this.form);
 				// Notify parent component
 				this.$emit('saved');
+			},
+
+			jobSelected (){
+
 			},
 
 			failed (errors){
