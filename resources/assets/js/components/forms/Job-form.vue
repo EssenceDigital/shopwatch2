@@ -105,6 +105,7 @@
 				form: {
 					id: {value: '', errors: []},
 					work_order_id: {value: '', errors: []},
+					is_premade: {value: false, errors: []},
 					title: {value: '', errors: []},
 					description: {value: '', errors: []},
 					is_flat_rate: {value: false, errors: []},
@@ -112,6 +113,7 @@
 					flat_rate_cost: {value: 0, errors: []},
 					hours: {value: 0, errors: []},
 					shop_rate: {value: '', errors: []},
+					parts: {value: [], errors: []},
 					tech_id: {value: '', errors: []}
 				},
 				completeSelect: [
@@ -175,8 +177,9 @@
 					// Clear form
 					Helpers.clearForm(this.form, 'work_order_id', {
 						// Default values
+						is_premade: false,
 						hours: 0,
-						is_flat_rate: 0,
+						is_flat_rate: false,
 						flat_rate: 0,
 						flat_rate_cost: 0,
 						shop_rate: this.shopRate
@@ -186,10 +189,6 @@
 				Helpers.clearFormErrors(this.form);
 				// Notify parent component
 				this.$emit('saved');
-			},
-
-			jobSelected (){
-
 			},
 
 			failed (errors){

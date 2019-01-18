@@ -62985,6 +62985,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -63008,7 +63010,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			applyTax: true,
 			poNumber: '',
 			shopSupplyRate: '',
-			shopRate: ''
+			shopRate: '',
+			premadeJob: ''
 		};
 	},
 
@@ -63106,8 +63109,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				}
 			});
 		},
+		jobSaved: function jobSaved() {
+			this.addJobDialog = false;
+			this.premadeJob = '';
+		},
 		addPremadeJob: function addPremadeJob(job) {
-			console.log(job);
+			// Set premade job for use in new job form
+			this.premadeJob = job;
+			// Open new job dialog to complete creating premade job
+			this.addJobDialog = true;
 		},
 		removed: function removed() {
 			console.log("removed");
@@ -63257,6 +63267,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			form: {
 				id: { value: '', errors: [] },
 				work_order_id: { value: '', errors: [] },
+				is_premade: { value: false, errors: [] },
 				title: { value: '', errors: [] },
 				description: { value: '', errors: [] },
 				is_flat_rate: { value: false, errors: [] },
@@ -63264,6 +63275,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				flat_rate_cost: { value: 0, errors: [] },
 				hours: { value: 0, errors: [] },
 				shop_rate: { value: '', errors: [] },
+				parts: { value: [], errors: [] },
 				tech_id: { value: '', errors: [] }
 			},
 			completeSelect: [{ text: 'No', value: 0 }, { text: 'Yes', value: 1 }],
@@ -63320,8 +63332,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				// Clear form
 				__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id', {
 					// Default values
+					is_premade: false,
 					hours: 0,
-					is_flat_rate: 0,
+					is_flat_rate: false,
 					flat_rate: 0,
 					flat_rate_cost: 0,
 					shop_rate: this.shopRate
@@ -63332,7 +63345,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			// Notify parent component
 			this.$emit('saved');
 		},
-		jobSelected: function jobSelected() {},
 		failed: function failed(errors) {
 			__WEBPACK_IMPORTED_MODULE_1__app_helpers__["a" /* default */].populateFormErrors(this.form, errors);
 		}
@@ -63697,14 +63709,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['workOrder'],
+
   data: function data() {
     return {
 
       lof: {
+        work_order_id: '',
+        is_premade: true,
         title: '',
-        description: 'Lube, oil, filter - Tire pressures ok, fluids ok, coolant -35c',
+        description: 'Lube, oil, filter - ',
         hours: 0.5,
         shop_rate: 50,
+        // Flat rate fields here so job form works later on
+        is_flat_rate: false,
+        flat_rate: 0,
+        flat_rate_cost: 0,
         parts: {
           filter: {
             title: 'Filter',
@@ -63761,8 +63781,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.lof.parts.oil.part_number = this.lofOptions.weight;
         this.lof.parts.oil.quantity = 5;
       }
-
+      // Add oil litres and weight to description
+      this.lof.description += this.lofOptions.litres + 'L/' + this.lofOptions.weight + '/' + this.lofOptions.filter;
+      // Add end of description
+      this.lof.description += ' - Tire pressures ok, fluids ok, coolant -35c';
+      // Emit event and send premade job to parent
       this.$emit('added', this.lof);
+      // Close premade job dialog
+      this.closeDialog('lofDialog');
+    }
+  },
+
+  created: function created() {
+    if (this.workOrder) {
+      this.lof.work_order_id = this.workOrder;
     }
   }
 });
@@ -65376,7 +65408,7 @@ var render = function() {
         1
       ),
       _vm._v(" "),
-      _vm.job.parts.length != 0
+      _vm.job.parts.length != 0 && !_vm.job.is_premade
         ? _c(
             "v-layout",
             { staticClass: "mb-3", attrs: { row: "" } },
@@ -66352,13 +66384,12 @@ var render = function() {
                           _c("job-form", {
                             attrs: {
                               action: "createJob",
+                              job: _vm.premadeJob,
                               "work-order": _vm.workOrder.id,
                               "shop-rate": _vm.busConfig.shop_rate
                             },
                             on: {
-                              saved: function($event) {
-                                _vm.addJobDialog = false
-                              },
+                              saved: _vm.jobSaved,
                               close: function($event) {
                                 _vm.addJobDialog = false
                               }
@@ -66382,6 +66413,7 @@ var render = function() {
                         },
                         [
                           _c("premade-job-form", {
+                            attrs: { "work-order": _vm.workOrder.id },
                             on: {
                               added: _vm.addPremadeJob,
                               close: function($event) {

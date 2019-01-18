@@ -124,7 +124,7 @@
 
 		<!-- Job parts -->
 		<v-layout
-			v-if="job.parts.length != 0"
+			v-if="job.parts.length != 0 && !job.is_premade"
 			row
 			class="mb-3"
 		>

@@ -79,14 +79,22 @@
 
 <script>
   export default{
+    props: ['workOrder'],
+
     data (){
       return {
 
         lof: {
+          work_order_id: '',
+          is_premade: true,
           title: '',
-          description: 'Lube, oil, filter - Tire pressures ok, fluids ok, coolant -35c',
+          description: 'Lube, oil, filter - ',
           hours: 0.5,
           shop_rate: 50,
+          // Flat rate fields here so job form works later on
+          is_flat_rate: false,
+					flat_rate: 0,
+					flat_rate_cost: 0,
           parts: {
             filter: {
               title: 'Filter',
@@ -145,9 +153,22 @@
           this.lof.parts.oil.part_number = this.lofOptions.weight;
           this.lof.parts.oil.quantity = 5;
         }
-
+        // Add oil litres and weight to description
+        this.lof.description += this.lofOptions.litres + 'L/'
+                              + this.lofOptions.weight + '/'
+                              + this.lofOptions.filter;
+        // Add end of description
+        this.lof.description += ' - Tire pressures ok, fluids ok, coolant -35c';
+        // Emit event and send premade job to parent
         this.$emit('added', this.lof);
+        // Close premade job dialog
+        this.closeDialog('lofDialog');
+      }
+    },
 
+    created (){
+      if(this.workOrder){
+        this.lof.work_order_id = this.workOrder;
       }
     }
   }

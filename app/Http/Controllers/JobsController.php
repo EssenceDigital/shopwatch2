@@ -119,11 +119,18 @@ class JobsController extends Controller
 			$job = new Job;
 			// If the request has part its a premade job so add the parts now
 			if($request->has('parts')){
+				// Add parts from request to job - request must be formatted properly
 				$job->parts = $request->parts;
+				// Update job totals including parts from the request
+				foreach($request->parts as $part){
+					// Update the parent job with new totals based on added part
+					$job = $this->calculateUpdatedJobTotals($part, $job);
+				}
 			} else {
 				// Not a premade job, parts gets set to an array
 				$job->parts = [];
 			}
+
 			// Save job
 			$job = $this->genericSave($job, $request);
 			// Find and return parent work order

@@ -20,6 +20,7 @@ class CreateJobsTable extends Migration
             $table->integer('tech_id')->unsigned();
             $table->foreign('tech_id')->references('id')->on('users');
             $table->string('tech', 50);
+            $table->boolean('is_premade')->default(false);
             $table->string('title', 100);
             $table->string('description')->nullable();
             $table->json('parts')->nullable();

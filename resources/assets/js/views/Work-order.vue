@@ -226,9 +226,10 @@
 					<v-dialog v-model="addJobDialog" persistent max-width="500px">
 		      	<job-form
 							action="createJob"
+							:job="premadeJob"
 							:work-order="workOrder.id"
 							:shop-rate="busConfig.shop_rate"
-							@saved="addJobDialog = false"
+							@saved="jobSaved"
 							@close="addJobDialog = false"
 						></job-form>
 		      </v-dialog>
@@ -236,6 +237,7 @@
 					<!-- Premade job dialog -->
 					<v-dialog v-model="premadeJobDialog" persistent max-width="500px">
 						<premade-job-form
+							:work-order="workOrder.id"
 							@added="addPremadeJob"
 							@close="premadeJobDialog = false"
 						></premade-job-form>
@@ -348,7 +350,8 @@
 				applyTax: true,
 				poNumber: '',
 				shopSupplyRate: '',
-				shopRate: ''
+				shopRate: '',
+				premadeJob: ''
 			}
 		},
 
@@ -448,8 +451,16 @@
 					});
 			},
 
+			jobSaved (){
+				this.addJobDialog = false;
+				this.premadeJob = '';
+			},
+
 			addPremadeJob (job){
-				console.log(job);
+				// Set premade job for use in new job form
+				this.premadeJob = job;
+				// Open new job dialog to complete creating premade job
+				this.addJobDialog = true;
 			},
 
 			removed (){
