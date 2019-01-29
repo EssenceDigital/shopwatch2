@@ -118,7 +118,6 @@ class Controller extends BaseController
   	*/
   	protected function calculateUpdatedJobTotals($part, $job, $prev_totals = false)
   	{
-      	// If the prev_totals is set then the part was just updated and requires job totals to be rolled back
       	if(! $prev_totals){
   	    	// prev_totals is NOT set then simply Cache job totals (for calculations that follow)
   	    	$current_parts_total_cost = floatval($job->parts_total_cost);

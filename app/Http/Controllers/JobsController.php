@@ -27,7 +27,6 @@ class JobsController extends Controller
 	{
 		// Get the tech (user) first
 		$tech = User::findOrFail($request->tech_id);
-
 		//
 		// For regular hourly jobs
 		//
@@ -52,9 +51,11 @@ class JobsController extends Controller
 		}
 
 		// Determine if the grand total should be calculated, or assinged the labour total
+		// This is true when a job is first created
 		if(! $job){
 			$grand_total = $labour_total;
 		} else {
+			// This is true when a job is being updated
 			// First, rollback the grand total based on the job old labour total
 			// Next, add the updated labour total to get the new grand total
 			$grand_total = (floatval($job->job_grand_total) - floatval($job->job_labour_total)) + floatval($labour_total);
@@ -118,13 +119,16 @@ class JobsController extends Controller
 			// Start job
 			$job = new Job;
 			// If the request has part its a premade job so add the parts now
-			if($request->has('parts')){
-				// Add parts from request to job - request must be formatted properly
-				$job->parts = $request->parts;
-				// Update job totals including parts from the request
-				foreach($request->parts as $part){
-					// Update the parent job with new totals based on added part
-					$job = $this->calculateUpdatedJobTotals($part, $job);
+			if(is_array($request->parts)){
+				// Not an empty array
+				if(count($request->parts) > 0){
+					// Add parts from request to job - request must be formatted properly
+					$job->parts = $request->parts;
+					// Update job totals including parts from the request
+					foreach($request->parts as $part){
+						// Update the parent job with new totals based on added part
+						$job = $this->calculateUpdatedJobTotals($part, $job);
+					}
 				}
 			} else {
 				// Not a premade job, parts gets set to an array

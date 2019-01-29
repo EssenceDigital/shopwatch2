@@ -17,6 +17,10 @@ class Job extends Model
         'parts_total_cost', 'parts_total_billed', 'job_labour_total', 'job_grand_total'
     ];
 
+    protected $attributes = [
+        'parts' => '{}'
+    ];
+
     protected $casts = [
         'parts' => 'array'
     ];

@@ -111,15 +111,7 @@
 	    	<job-form action="updateJob" :job="job" edit-state="true" @saved="editJobDialog = false"></job-form>
 	    </v-dialog>
 
-			<!-- Add parts dialog -->
-			<v-dialog v-model="addPartsDialog" persistent max-width="500px">
-	    	<parts-form
-					action="createJobPart"
-					:job="job.id"
-					@saved="addPartsDialog = false"
-					@close="addPartsDialog = false"
-				></parts-form>
-	    </v-dialog>
+
 		</v-layout>
 
 		<!-- Job parts -->

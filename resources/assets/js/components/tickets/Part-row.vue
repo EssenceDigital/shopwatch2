@@ -43,22 +43,10 @@
 
 		</v-flex>
 
-		<!-- Edit part dialog -->
-		<v-dialog v-model="editDialog" persistent max-width="500px">
-    	<part-form
-				action="updateJobPart"
-				:part="part"
-				edit-state="true"
-				:remove-payload="part.id + '/' + part.job_id"
-				@saved="editDialog = false"
-			></part-form>
-    </v-dialog>
-
 	</v-layout>
 </template>
 
 <script>
-	import PartForm from './../forms/Job-parts-form';
 
 	export default{
 		props: {
@@ -72,12 +60,12 @@
 
 		data (){
 			return {
-				editDialog: false
+			
 			}
 		},
 
 		components: {
-			'part-form': PartForm
+
 		}
 
 	}

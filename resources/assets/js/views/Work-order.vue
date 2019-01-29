@@ -222,17 +222,37 @@
 
 					<!-- Dialogs triggered by tool buttons -->
 
-					<!-- Add job dialog -->
-					<v-dialog v-model="addJobDialog" persistent max-width="500px">
-		      	<job-form
-							action="createJob"
-							:job="premadeJob"
-							:work-order="workOrder.id"
-							:shop-rate="busConfig.shop_rate"
-							@saved="jobSaved"
-							@close="addJobDialog = false"
-						></job-form>
-		      </v-dialog>
+					<v-dialog v-model="addJobDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+			      <v-card>
+			        <v-toolbar dark color="primary">
+			          <v-btn icon dark @click="addJobDialog = false">
+			            <v-icon>close</v-icon>
+			          </v-btn>
+			          <v-toolbar-title>Add Work</v-toolbar-title>
+			          <v-spacer></v-spacer>
+			          <v-toolbar-items>
+									<v-btn dark flat @click="addPart = true">Add Part</v-btn>
+			            <v-btn dark flat @click="saveJob = true">Save</v-btn>
+			          </v-toolbar-items>
+			        </v-toolbar>
+							<v-container fluid>
+
+									<job-form
+										action="createJob"
+										:save-form="saveJob"
+										:add-part="addPart"
+										:job="premadeJob"
+										:work-order="workOrder.id"
+										:shop-rate="busConfig.shop_rate"
+										@saved="jobSaved"
+										@close="addJobDialog = false"
+									></job-form>
+
+
+							</v-container>
+
+			      </v-card>
+					 </v-dialog>
 
 					<!-- Premade job dialog -->
 					<v-dialog v-model="premadeJobDialog" persistent max-width="500px">
@@ -342,6 +362,8 @@
 			return {
 				componentLoading: true,
 				addJobDialog: false,
+				saveJob: false,
+				addPart: false,
 				premadeJobDialog: false,
 				removeWoDialog: false,
 				woOptionsDialog: false,
@@ -452,6 +474,8 @@
 			},
 
 			jobSaved (){
+				// Reset trigger Boolean
+				this.saveJob = false;
 				this.addJobDialog = false;
 				this.premadeJob = '';
 			},
