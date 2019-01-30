@@ -231,7 +231,6 @@
 			          <v-toolbar-title>Add Work</v-toolbar-title>
 			          <v-spacer></v-spacer>
 			          <v-toolbar-items>
-									<v-btn dark flat @click="addPart = true">Add Part</v-btn>
 			            <v-btn dark flat @click="saveJob = true">Save</v-btn>
 			          </v-toolbar-items>
 			        </v-toolbar>

@@ -11,7 +11,7 @@
 				</v-card-title>
 				<v-divider></v-divider>
 				<parent-form
-					:save-form="saveForm"
+					:save-form="doSaveForm"
 					:action="action"
 					remove-action="removeJob"
 					:edit-state="editState"
@@ -143,10 +143,10 @@
 				<v-card-text v-if="!showPartsForm" class="ml-1 mr-1">
 
 					<v-container
-						v-for="part in form.parts.value"
-						:key="id"
+						v-for="part in parts"
+						:key="part.id"
 						fluid
-						class="pl-0 pr-0"
+						class="pl-0 pr-0 pt-0"
 					>
 						<v-layout row>
 							<v-flex xs3>
@@ -187,7 +187,7 @@
 							<v-flex xs1 class="text-xs-right">
 								<v-tooltip top>
 									<v-btn
-									 	@click="removePart(part)"
+									 	@click="removePart(part.id)"
 										slot="activator"
 										icon
 									>
@@ -249,12 +249,14 @@
 					parts: {value: {}, errors: []},
 					tech_id: {value: '', errors: []}
 				},
+				parts: [],
 				completeSelect: [
 					{ text: 'No', value: 0 },
 					{ text: 'Yes', value: 1 }
 				],
 				isFlatRate: false,
-				showPartsForm: false
+				showPartsForm: false,
+				doSaveForm: false
 			}
 		},
 
@@ -295,6 +297,19 @@
 				} else {
 					this.form.is_flat_rate.value = bool;
 					this.form.tech_id.value = 1;
+				}
+			},
+
+			saveForm (bool){
+				if(bool){
+					// Populate parts in job form
+					this.parts.forEach((part) => {
+						this.form.parts.value[part.id] = part;
+					});
+					// Trigger form save
+					this.doSaveForm = true;
+				} else {
+					this.doSaveForm = false;
 				}
 			}
 
@@ -340,15 +355,21 @@
 				// Add id to part
 				part.id = uniqid;
 				// Add part to parts array in form
-				this.form.parts.value[uniqid] = part;
+				this.parts.push(part);
 				// Hide form
 				this.showPartsForm = false;
-
-				console.log(part.id);
 			},
 
-			removePart (part){
-				delete this.form.parts.value[part.id];
+			removePart (id){
+				this.parts.forEach((part) => {
+					// If id match, delete from array
+					if(part.id == id){
+						// Get the index for removal
+						var index = Helpers.pluckObjectById(this.parts, 'id', id);
+						// Remove
+						this.parts.splice(index, 1);
+					}
+				});
 			}
 		},
 

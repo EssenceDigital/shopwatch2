@@ -23,7 +23,7 @@ class JobsController extends Controller
 	 * @param $job - The parent job. Should be set when a job has been updated.
 	 * @return The merged request
 	*/
-	private function calculateJobTotals($request, $job = false)
+	private function calculateLabourTotals($request, $job)
 	{
 		// Get the tech (user) first
 		$tech = User::findOrFail($request->tech_id);
@@ -50,46 +50,31 @@ class JobsController extends Controller
 			$labour_total = round(floatval($request->flat_rate), 3);
 		}
 
-		// Determine if the grand total should be calculated, or assinged the labour total
-		// This is true when a job is first created
-		if(! $job){
-			$grand_total = $labour_total;
-		} else {
-			// This is true when a job is being updated
-			// First, rollback the grand total based on the job old labour total
-			// Next, add the updated labour total to get the new grand total
-			$grand_total = (floatval($job->job_grand_total) - floatval($job->job_labour_total)) + floatval($labour_total);
-		}
+		// Add labour total to grand total
+		$grand_total = floatval($job->job_grand_total) + floatval($labour_total);
 
 		//
 		// For regular hourly Jobs
 		//
 		if(! $request->is_flat_rate){
-			// Merge the calculated data with the request
-			$request->merge([
-				'tech' => $tech->name,
-				'tech_id' => $tech->id,
-				'tech_hourly_rate' => $tech->hourly_wage,
-				'tech_pay_total' => $tech_pay_total,
-				'shop_rate' => $shop_rate,
-				'job_labour_total' => $labour_total,
-				// Will get updated later if there is parts on this job (likely)
-				'job_grand_total' => $grand_total
-			]);
+			$job->tech = $tech->name;
+			$job->tech_id = $tech->id;
+			$job->tech_hourly_rate = $tech->hourly_wage;
+			$job->tech_pay_total = $tech_pay_total;
+			$job->shop_rate = $shop_rate;
+			$job->job_labour_total = $labour_total;
+			$job->job_grand_total = $grand_total;
 		} else {
 			//
 			// For flat rate Jobs
 			//
-			$request->merge([
-				'tech' => $tech->name,
-				'tech_id' => $tech->id,
-				'job_labour_total' => $labour_total,
-				// Will get updated later if there is parts on this job (likely)
-				'job_grand_total' => $grand_total
-			]);
+			$job->tech = $tech->name;
+			$job->tech_id = $tech->id;
+			$job->job_labour_total = $labour_total;
+			$job->job_grand_total = $grand_total;
 		}
 
-		return $request;
+		return $job;
 	}
 
 	/**
@@ -114,29 +99,26 @@ class JobsController extends Controller
 	{
 		// Check if parent work order is still open
 		if($this->ensureWorkOrderIsOpen($request->work_order_id)){
-			// Calculate totals before saving
-			$request = $this->calculateJobTotals($request);
 			// Start job
 			$job = new Job;
-			// If the request has part its a premade job so add the parts now
-			if(is_array($request->parts)){
-				// Not an empty array
-				if(count($request->parts) > 0){
-					// Add parts from request to job - request must be formatted properly
-					$job->parts = $request->parts;
-					// Update job totals including parts from the request
-					foreach($request->parts as $part){
-						// Update the parent job with new totals based on added part
-						$job = $this->calculateUpdatedJobTotals($part, $job);
-					}
+
+			// Tally parts totals if there is parts
+			if(count($request->parts) > 0){
+				// Add parts from request to job - request must be formatted properly
+				$job->parts = $request->parts;
+				// Tally parts totals and update corresponding job totals
+				foreach($request->parts as $part){
+					// Update totals in job as we go
+					$job = $this->calculatePartsTotals($part, $job);
 				}
-			} else {
-				// Not a premade job, parts gets set to an array
-				$job->parts = [];
 			}
 
+			// Next, tally labour totals and update job totals
+			$job = $this->calculateLabourTotals($request, $job);
+
 			// Save job
-			$job = $this->genericSave($job, $request);
+			$job = $this->genericSave($job);
+
 			// Find and return parent work order
 			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 
