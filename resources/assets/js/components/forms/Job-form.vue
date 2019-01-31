@@ -274,6 +274,10 @@
 			job (job){
 				// Populate the form for editing
 				if(job){
+					// Parse out parts for watching
+					for(let key in this.job.parts){
+						this.parts.push(this.job.parts[key]);
+					}
 					Helpers.populateForm(this.form, job);
 				}
 			},
@@ -302,6 +306,7 @@
 
 			saveForm (bool){
 				if(bool){
+					this.form.parts.value = {};
 					// Populate parts in job form
 					this.parts.forEach((part) => {
 						this.form.parts.value[part.id] = part;
@@ -323,6 +328,9 @@
 		methods: {
 
 			saved (){
+				// Reset parts parse
+				this.parts = [];
+				// Clear form for non edit
 				if(! this.editState){
 					// Clear form
 					Helpers.clearForm(this.form, 'work_order_id', {
@@ -332,7 +340,8 @@
 						is_flat_rate: false,
 						flat_rate: 0,
 						flat_rate_cost: 0,
-						shop_rate: this.shopRate
+						shop_rate: this.shopRate,
+						parts: {}
 					});
 				}
 				// Clear form errors
@@ -376,6 +385,10 @@
 		created (){
 			// Populate form with supplied job, if needed
 			if(this.job){
+				// Parse out parts for watching
+				for(let key in this.job.parts){
+					this.parts.push(this.job.parts[key]);
+				}
 				Helpers.populateForm(this.form, this.job);
 			} else {
 				// If not an edit job, apply the default shop rate

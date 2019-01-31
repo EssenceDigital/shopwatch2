@@ -221,7 +221,6 @@
 
 
 					<!-- Dialogs triggered by tool buttons -->
-
 					<v-dialog v-model="addJobDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
 			      <v-card>
 			        <v-toolbar dark color="primary">
@@ -231,7 +230,12 @@
 			          <v-toolbar-title>Add Work</v-toolbar-title>
 			          <v-spacer></v-spacer>
 			          <v-toolbar-items>
-			            <v-btn dark flat @click="saveJob = true">Save</v-btn>
+			            <v-btn
+										@click="triggerSaveJob"
+										:loading="savingJob"
+										dark
+										flat
+									>Save</v-btn>
 			          </v-toolbar-items>
 			        </v-toolbar>
 							<v-container fluid>
@@ -362,6 +366,7 @@
 				componentLoading: true,
 				addJobDialog: false,
 				saveJob: false,
+				savingJob: false,
 				addPart: false,
 				premadeJobDialog: false,
 				removeWoDialog: false,
@@ -472,8 +477,16 @@
 					});
 			},
 
+			triggerSaveJob (){
+				// Trigger loader
+				this.savingJob = true;
+				// Trigger save
+				this.saveJob = true;
+			},
+
 			jobSaved (){
 				// Reset trigger Boolean
+				this.savingJob = false;
 				this.saveJob = false;
 				this.addJobDialog = false;
 				this.premadeJob = '';

@@ -26,22 +26,6 @@
 				{{ part.billing_price * part.quantity | money }}
 			</p>
 		</v-flex>
-		<v-flex v-if="!invoiceState" xs1 class="text-xs-right">
-			<!-- Job tool menu -->
-			<v-menu bottom left>
-	      <v-btn icon slot="activator" class="mt-0 mr-0">
-	        <v-icon>arrow_drop_down</v-icon>
-	      </v-btn>
-	      <v-list>
-	        <v-list-tile @click="editDialog = true">
-	          <v-list-tile-title>Edit part</v-list-tile-title>
-	        </v-list-tile>
-	      </v-list>
-	    </v-menu>
-		</v-flex>
-		<v-flex v-if="invoiceState" xs1>
-
-		</v-flex>
 
 	</v-layout>
 </template>
@@ -60,7 +44,7 @@
 
 		data (){
 			return {
-			
+
 			}
 		},
 

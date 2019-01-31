@@ -61,6 +61,7 @@ class JobsController extends Controller
 			$job->tech_id = $tech->id;
 			$job->tech_hourly_rate = $tech->hourly_wage;
 			$job->tech_pay_total = $tech_pay_total;
+			$job->hours = $request->hours;
 			$job->shop_rate = $shop_rate;
 			$job->job_labour_total = $labour_total;
 			$job->job_grand_total = $grand_total;
@@ -70,9 +71,36 @@ class JobsController extends Controller
 			//
 			$job->tech = $tech->name;
 			$job->tech_id = $tech->id;
+			$job->flat_rate = $request->flat_rate;
+			$job->flat_rate_cost = $request->flat_rate_cost;
 			$job->job_labour_total = $labour_total;
 			$job->job_grand_total = $grand_total;
 		}
+
+		return $job;
+	}
+
+	private function prepJobForSave($job, $request)
+	{
+		$job->work_order_id = $request->work_order_id;
+		$job->title = $request->title;
+		$job->description = $request->description;
+		$job->is_flat_rate = $request->is_flat_rate;
+		$job->is_premade = $request->is_premade;
+
+		// Tally parts totals if there is parts
+		if(count($request->parts) > 0){
+			// Add parts from request to job - request must be formatted properly
+			$job->parts = $request->parts;
+			// Tally parts totals and update corresponding job totals
+			foreach($request->parts as $part){
+				// Update totals in job as we go
+				$job = $this->calculatePartsTotals($part, $job);
+			}
+		}
+
+		// Next, tally labour totals and update job totals
+		$job = $this->calculateLabourTotals($request, $job);
 
 		return $job;
 	}
@@ -99,22 +127,8 @@ class JobsController extends Controller
 	{
 		// Check if parent work order is still open
 		if($this->ensureWorkOrderIsOpen($request->work_order_id)){
-			// Start job
-			$job = new Job;
-
-			// Tally parts totals if there is parts
-			if(count($request->parts) > 0){
-				// Add parts from request to job - request must be formatted properly
-				$job->parts = $request->parts;
-				// Tally parts totals and update corresponding job totals
-				foreach($request->parts as $part){
-					// Update totals in job as we go
-					$job = $this->calculatePartsTotals($part, $job);
-				}
-			}
-
-			// Next, tally labour totals and update job totals
-			$job = $this->calculateLabourTotals($request, $job);
+			// Calclate job totals
+			$job = $this->prepJobForSave(new Job, $request);
 
 			// Save job
 			$job = $this->genericSave($job);
@@ -137,16 +151,22 @@ class JobsController extends Controller
 	*/
 	public function update(UpdateJob $request)
 	{
-		// Get the job
-		$job = Job::with(['parts'])->findOrFail($request->id);
-
+		$job = Job::findOrFail($request->id);
 		// Check if parent work order is still open (can only modify a part on an open (not invoiced) work order)
 		// Check if parent job is marked as complete (cannot modify a part on a job marked complete)
 		if($this->guardWorkOrder($job->work_order_id, $job->is_complete)){
-			// Calculate totals before saving
-			$request = $this->calculateJobTotals($request, $job);
+			// Rollback job totals
+			$job->tech_pay_total = 0;
+			$job->job_labour_total = 0;
+			$job->parts_total_cost = 0;
+			$job->parts_total_billed = 0;
+			$job->job_grand_total = 0;
+			// Calclate job totals
+			$job = $this->prepJobForSave($job, $request);
+
 			// Save job
-			$job = $this->genericSave($job, $request);
+			$job = $this->genericSave($job);
+
 			// Find and return parent work order
 			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 		} else {

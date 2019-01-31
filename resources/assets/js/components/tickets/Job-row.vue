@@ -87,30 +87,50 @@
 			<!-- Only show spacer if NOT invoice state -->
 			<v-flex v-if="!invoiceState" xs1 class="text-xs-right">
 				<!-- Job tool menu -->
-				<v-menu left>
-		      <v-btn icon slot="activator" class="mt-0 mr-0">
-		        <v-icon>arrow_drop_down</v-icon>
-		      </v-btn>
-		      <v-list>
-		        <v-list-tile @click="editJobDialog = true">
-		          <v-list-tile-title>Edit job</v-list-tile-title>
-		        </v-list-tile>
-		        <v-list-tile
-							v-if="!job.is_flat_rate"
-							@click="addPartsDialog = true"
-						>
-		          <v-list-tile-title>Add part</v-list-tile-title>
-		        </v-list-tile>
-		      </v-list>
-		    </v-menu>
+				<v-tooltip top>
+					<v-btn
+						slot="activator"
+						@click="editJobDialog = true"
+						icon
+						class="mt-0"
+					>
+						<v-icon>edit</v-icon>
+					</v-btn>
+					<span>Edit job and parts</span>
+				</v-tooltip>
 			</v-flex>
 
-
-			<!-- Edit job dialog -->
-			<v-dialog v-model="editJobDialog" persistent max-width="500px">
-	    	<job-form action="updateJob" :job="job" edit-state="true" @saved="editJobDialog = false"></job-form>
-	    </v-dialog>
-
+			<!-- Dialogs triggered by tool buttons -->
+			<v-dialog v-model="editJobDialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+				<v-card>
+					<v-toolbar dark color="primary">
+						<v-btn icon dark @click="editJobDialog = false">
+							<v-icon>close</v-icon>
+						</v-btn>
+						<v-toolbar-title>Add Work</v-toolbar-title>
+						<v-spacer></v-spacer>
+						<v-toolbar-items>
+							<v-btn
+								@click="triggerSaveJob"
+								:loading="savingJob"
+								dark
+								flat
+							>Save</v-btn>
+						</v-toolbar-items>
+					</v-toolbar>
+					<v-container fluid>
+							<job-form
+								action="updateJob"
+								:save-form="saveJob"
+								:add-part="addPart"
+								:job="job"
+								edit-state="true"
+								@saved="jobSaved"
+								@close="addJobDialog = false"
+							></job-form>
+					</v-container>
+				</v-card>
+			 </v-dialog>
 
 		</v-layout>
 
@@ -145,11 +165,10 @@
 						</p>
 					</v-flex>
 					<v-flex xs2>
-						<p class="pt-2 pb-2 mb-0 text-xs-right">
+						<p class="pt-2 pb-2 pr-2 mb-0 text-xs-right">
 							<strong>LINE TOTAL</strong>
 						</p>
 					</v-flex>
-					<v-flex xs1></v-flex>
 				</v-layout>
 				<part-row
 					v-for="part in job.parts"
@@ -194,7 +213,6 @@
 
 <script>
 	import JobForm from './../forms/Job-form';
-	import PartsForm from './../forms/Job-parts-form';
 	import PartRow from './../tickets/Part-row';
 
 	export default{
@@ -211,13 +229,14 @@
 			return {
 				editJobDialog: false,
 				addPartsDialog: false,
-				markingComplete: false
+				markingComplete: false,
+				savingJob: false,
+				saveJob: false
 			}
 		},
 
 		components: {
 			'job-form': JobForm,
-			'parts-form': PartsForm,
 			'part-row': PartRow
 		},
 
@@ -250,7 +269,21 @@
 							}
 						}
 					});
-			}
+			},
+
+			triggerSaveJob (){
+				// Trigger loader
+				this.savingJob = true;
+				// Trigger save
+				this.saveJob = true;
+			},
+
+			jobSaved (){
+				// Reset trigger Boolean
+				this.savingJob = false;
+				this.saveJob = false;
+				this.editJobDialog = false;
+			},			
 		}
 	}
 </script>

@@ -63005,6 +63005,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -63021,6 +63025,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			componentLoading: true,
 			addJobDialog: false,
 			saveJob: false,
+			savingJob: false,
 			addPart: false,
 			premadeJobDialog: false,
 			removeWoDialog: false,
@@ -63129,8 +63134,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				}
 			});
 		},
+		triggerSaveJob: function triggerSaveJob() {
+			// Trigger loader
+			this.savingJob = true;
+			// Trigger save
+			this.saveJob = true;
+		},
 		jobSaved: function jobSaved() {
 			// Reset trigger Boolean
+			this.savingJob = false;
 			this.saveJob = false;
 			this.addJobDialog = false;
 			this.premadeJob = '';
@@ -63458,6 +63470,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		job: function job(_job) {
 			// Populate the form for editing
 			if (_job) {
+				// Parse out parts for watching
+				for (var key in this.job.parts) {
+					this.parts.push(this.job.parts[key]);
+				}
 				__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateForm(this.form, _job);
 			}
 		},
@@ -63484,6 +63500,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			var _this = this;
 
 			if (bool) {
+				this.form.parts.value = {};
 				// Populate parts in job form
 				this.parts.forEach(function (part) {
 					_this.form.parts.value[part.id] = part;
@@ -63503,6 +63520,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 	methods: {
 		saved: function saved() {
+			// Reset parts parse
+			this.parts = [];
+			// Clear form for non edit
 			if (!this.editState) {
 				// Clear form
 				__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id', {
@@ -63512,7 +63532,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					is_flat_rate: false,
 					flat_rate: 0,
 					flat_rate_cost: 0,
-					shop_rate: this.shopRate
+					shop_rate: this.shopRate,
+					parts: {}
 				});
 			}
 			// Clear form errors
@@ -63554,6 +63575,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	created: function created() {
 		// Populate form with supplied job, if needed
 		if (this.job) {
+			// Parse out parts for watching
+			for (var key in this.job.parts) {
+				this.parts.push(this.job.parts[key]);
+			}
 			__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateForm(this.form, this.job);
 		} else {
 			// If not an edit job, apply the default shop rate
@@ -63683,7 +63708,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     saveForm: function saveForm(bool) {
       if (bool) {
         console.log("Save form");
-        //this.save();
+        this.save();
       }
     }
   },
@@ -65395,10 +65420,8 @@ if (false) {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__forms_Job_form__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__forms_Job_form___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__forms_Job_form__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tickets_Part_row__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__tickets_Part_row___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__tickets_Part_row__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__tickets_Part_row__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__tickets_Part_row___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__tickets_Part_row__);
 //
 //
 //
@@ -65593,7 +65616,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -65612,15 +65653,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		return {
 			editJobDialog: false,
 			addPartsDialog: false,
-			markingComplete: false
+			markingComplete: false,
+			savingJob: false,
+			saveJob: false
 		};
 	},
 
 
 	components: {
 		'job-form': __WEBPACK_IMPORTED_MODULE_0__forms_Job_form___default.a,
-		'parts-form': __WEBPACK_IMPORTED_MODULE_1__forms_Job_parts_form___default.a,
-		'part-row': __WEBPACK_IMPORTED_MODULE_2__tickets_Part_row___default.a
+		'part-row': __WEBPACK_IMPORTED_MODULE_1__tickets_Part_row___default.a
 	},
 
 	methods: {
@@ -65652,6 +65694,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					}
 				}
 			});
+		},
+		triggerSaveJob: function triggerSaveJob() {
+			// Trigger loader
+			this.savingJob = true;
+			// Trigger save
+			this.saveJob = true;
+		},
+		jobSaved: function jobSaved() {
+			// Reset trigger Boolean
+			this.savingJob = false;
+			this.saveJob = false;
+			this.editJobDialog = false;
 		}
 	}
 });
@@ -65662,22 +65716,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -65783,55 +65821,7 @@ var render = function() {
               "\n\t\t"
           )
         ])
-      ]),
-      _vm._v(" "),
-      !_vm.invoiceState
-        ? _c(
-            "v-flex",
-            { staticClass: "text-xs-right", attrs: { xs1: "" } },
-            [
-              _c(
-                "v-menu",
-                { attrs: { bottom: "", left: "" } },
-                [
-                  _c(
-                    "v-btn",
-                    {
-                      staticClass: "mt-0 mr-0",
-                      attrs: { slot: "activator", icon: "" },
-                      slot: "activator"
-                    },
-                    [_c("v-icon", [_vm._v("arrow_drop_down")])],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-list",
-                    [
-                      _c(
-                        "v-list-tile",
-                        {
-                          on: {
-                            click: function($event) {
-                              _vm.editDialog = true
-                            }
-                          }
-                        },
-                        [_c("v-list-tile-title", [_vm._v("Edit part")])],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        : _vm._e(),
-      _vm._v(" "),
-      _vm.invoiceState ? _c("v-flex", { attrs: { xs1: "" } }) : _vm._e()
+      ])
     ],
     1
   )
@@ -66036,53 +66026,26 @@ var render = function() {
                 { staticClass: "text-xs-right", attrs: { xs1: "" } },
                 [
                   _c(
-                    "v-menu",
-                    { attrs: { left: "" } },
+                    "v-tooltip",
+                    { attrs: { top: "" } },
                     [
                       _c(
                         "v-btn",
                         {
-                          staticClass: "mt-0 mr-0",
+                          staticClass: "mt-0",
                           attrs: { slot: "activator", icon: "" },
+                          on: {
+                            click: function($event) {
+                              _vm.editJobDialog = true
+                            }
+                          },
                           slot: "activator"
                         },
-                        [_c("v-icon", [_vm._v("arrow_drop_down")])],
+                        [_c("v-icon", [_vm._v("edit")])],
                         1
                       ),
                       _vm._v(" "),
-                      _c(
-                        "v-list",
-                        [
-                          _c(
-                            "v-list-tile",
-                            {
-                              on: {
-                                click: function($event) {
-                                  _vm.editJobDialog = true
-                                }
-                              }
-                            },
-                            [_c("v-list-tile-title", [_vm._v("Edit job")])],
-                            1
-                          ),
-                          _vm._v(" "),
-                          !_vm.job.is_flat_rate
-                            ? _c(
-                                "v-list-tile",
-                                {
-                                  on: {
-                                    click: function($event) {
-                                      _vm.addPartsDialog = true
-                                    }
-                                  }
-                                },
-                                [_c("v-list-tile-title", [_vm._v("Add part")])],
-                                1
-                              )
-                            : _vm._e()
-                        ],
-                        1
-                      )
+                      _c("span", [_vm._v("Edit job and parts")])
                     ],
                     1
                   )
@@ -66094,7 +66057,11 @@ var render = function() {
           _c(
             "v-dialog",
             {
-              attrs: { persistent: "", "max-width": "500px" },
+              attrs: {
+                fullscreen: "",
+                "hide-overlay": "",
+                transition: "dialog-bottom-transition"
+              },
               model: {
                 value: _vm.editJobDialog,
                 callback: function($$v) {
@@ -66104,18 +66071,78 @@ var render = function() {
               }
             },
             [
-              _c("job-form", {
-                attrs: {
-                  action: "updateJob",
-                  job: _vm.job,
-                  "edit-state": "true"
-                },
-                on: {
-                  saved: function($event) {
-                    _vm.editJobDialog = false
-                  }
-                }
-              })
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "v-toolbar",
+                    { attrs: { dark: "", color: "primary" } },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { icon: "", dark: "" },
+                          on: {
+                            click: function($event) {
+                              _vm.editJobDialog = false
+                            }
+                          }
+                        },
+                        [_c("v-icon", [_vm._v("close")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-toolbar-title", [_vm._v("Add Work")]),
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-toolbar-items",
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                loading: _vm.savingJob,
+                                dark: "",
+                                flat: ""
+                              },
+                              on: { click: _vm.triggerSaveJob }
+                            },
+                            [_vm._v("Save")]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-container",
+                    { attrs: { fluid: "" } },
+                    [
+                      _c("job-form", {
+                        attrs: {
+                          action: "updateJob",
+                          "save-form": _vm.saveJob,
+                          "add-part": _vm.addPart,
+                          job: _vm.job,
+                          "edit-state": "true"
+                        },
+                        on: {
+                          saved: _vm.jobSaved,
+                          close: function($event) {
+                            _vm.addJobDialog = false
+                          }
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
             ],
             1
           )
@@ -66170,12 +66197,10 @@ var render = function() {
                       _c("v-flex", { attrs: { xs2: "" } }, [
                         _c(
                           "p",
-                          { staticClass: "pt-2 pb-2 mb-0 text-xs-right" },
+                          { staticClass: "pt-2 pb-2 pr-2 mb-0 text-xs-right" },
                           [_c("strong", [_vm._v("LINE TOTAL")])]
                         )
-                      ]),
-                      _vm._v(" "),
-                      _c("v-flex", { attrs: { xs1: "" } })
+                      ])
                     ],
                     1
                   ),
@@ -67131,12 +67156,12 @@ var render = function() {
                                       _c(
                                         "v-btn",
                                         {
-                                          attrs: { dark: "", flat: "" },
-                                          on: {
-                                            click: function($event) {
-                                              _vm.saveJob = true
-                                            }
-                                          }
+                                          attrs: {
+                                            loading: _vm.savingJob,
+                                            dark: "",
+                                            flat: ""
+                                          },
+                                          on: { click: _vm.triggerSaveJob }
                                         },
                                         [_vm._v("Save")]
                                       )

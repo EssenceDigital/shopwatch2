@@ -126,11 +126,14 @@ class Controller extends BaseController
       	// Add part cost to total parts cost
       	$job->parts_total_cost = round(($current_parts_total_cost + (floatval($part['total_cost']) * $part['quantity'])), 3);
 
+        // Billing price of part(s)
+        $parts_added_billed_cost = floatval($part['billing_price']) * $part['quantity'];
+
       	// Add part billed price to total parts billed
-      	$job->parts_total_billed = round(($current_parts_total_billed + (floatval($part['billing_price']) * $part['quantity'])), 3);
+      	$job->parts_total_billed = round(($current_parts_total_billed + floatval($parts_added_billed_cost) ), 3);
 
       	// Calculate the new grand total, adding the part billing price
-      	$job->job_grand_total = round(($current_grand_total + floatval($part['billing_price'])), 3);
+      	$job->job_grand_total = round(($current_grand_total + floatval($parts_added_billed_cost)), 3);
 
       	return $job;
   	}
