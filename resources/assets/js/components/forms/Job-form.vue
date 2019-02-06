@@ -106,7 +106,7 @@
 			</v-card>
 		</v-flex>
 		<v-flex xs6 class="pl-3">
-			<v-card v-if="">
+			<v-card v-if="!isFlatRate">
 				<v-card-title>
 					<h3 class="headline">
 						<v-icon left>build</v-icon>
@@ -231,7 +231,7 @@
 
 
 	export default{
-		props: ['action', 'job', 'workOrder', 'editState', 'shopRate', 'saveForm', 'addPart'],
+		props: ['action', 'job', 'workOrder', 'editState', 'shopRate', 'saveForm'],
 
 		data (){
 			return {
@@ -275,9 +275,9 @@
 				// Populate the form for editing
 				if(job){
 					// Parse out parts for watching
-					for(let key in this.job.parts){
+					/*for(let key in this.job.parts){
 						this.parts.push(this.job.parts[key]);
-					}
+					}*/
 					Helpers.populateForm(this.form, job);
 				}
 			},
@@ -329,7 +329,7 @@
 
 			saved (){
 				// Reset parts parse
-				this.parts = [];
+				//this.parts = [];
 				// Clear form for non edit
 				if(! this.editState){
 					// Clear form

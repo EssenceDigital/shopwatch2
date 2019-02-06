@@ -23,39 +23,7 @@ class JobPartsController extends Controller
 	*/
     public function create(SaveJobPart $request)
     {
-    	// First get the job so we can update the totals and run some checks
-    	$job = Job::findOrFail($request->job_id);
-			// Can only add parts to hourly jobs
-			if(! $job->is_flat_rate){
-				// Check if parent work order is still open (can only create a part on an open (not invoiced) work order)
-				// Check if parent job is marked as complete (can only create a part if the job is NOT marked complete)
-				if($this->guardWorkOrder($job->work_order_id, $job->is_complete)){
-						// Extract current parts array from Job
-						$parts = $job->parts;
-						// New part to add
-						$part = $request->all();
-						// Add unique id to part
-						$id = uniqid();
-						$part['id'] = $id;
-						// Push new part to parts array
-						$parts[$id] = $part;
-						// Update parts in Job model
-						$job->parts = $parts;
-			    	// Update the parent job with new totals based on added part
-			    	$job = $this->calculateUpdatedJobTotals($part, $job);
-						// Save the job with updated totals
-		      	$job = $this->genericSave($job);
-
-						// Find and return parent work order
-						return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
-					} else {
-						// Failed response. Work order is closed or job is complete
-						return response()->json($this->woGuardResponse, 422);
-					}
-			} else {
-				// Failed response. Flat rate job cant have parts
-				return response()->json("Can't add parts to a flat rate job", 422);
-			}
+       return true;
     }
 
 	/**

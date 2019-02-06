@@ -122,7 +122,6 @@
 							<job-form
 								action="updateJob"
 								:save-form="saveJob"
-								:add-part="addPart"
 								:job="job"
 								edit-state="true"
 								@saved="jobSaved"
@@ -283,7 +282,7 @@
 				this.savingJob = false;
 				this.saveJob = false;
 				this.editJobDialog = false;
-			},			
+			},
 		}
 	}
 </script>

@@ -243,7 +243,6 @@
 									<job-form
 										action="createJob"
 										:save-form="saveJob"
-										:add-part="addPart"
 										:job="premadeJob"
 										:work-order="workOrder.id"
 										:shop-rate="busConfig.shop_rate"
@@ -367,7 +366,6 @@
 				addJobDialog: false,
 				saveJob: false,
 				savingJob: false,
-				addPart: false,
 				premadeJobDialog: false,
 				removeWoDialog: false,
 				woOptionsDialog: false,

@@ -60,7 +60,6 @@
     watch: {
       saveForm (bool){
         if(bool){
-          console.log("Save form");
           this.save();
         }
       }

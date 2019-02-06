@@ -140,9 +140,10 @@
 			addPart (){
 				// Validate form
 				for(let field in this.form){
-					if(this.form[field] != 'id'){
+					if(field != 'id'){
 						if(this.form[field].value == ''){
 							this.form[field].errors.push('Field is required.');
+							return false;
 						}
 					}
 				}
