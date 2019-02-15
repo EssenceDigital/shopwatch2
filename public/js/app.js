@@ -63384,6 +63384,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 	data: function data() {
 		return {
+			// Form inputs
 			form: {
 				id: { value: '', errors: [] },
 				work_order_id: { value: '', errors: [] },
@@ -63398,10 +63399,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				parts: { value: {}, errors: [] },
 				tech_id: { value: '', errors: [] }
 			},
+			// Holds the list of parts objects before form submission
 			parts: [],
-			completeSelect: [{ text: 'No', value: 0 }, { text: 'Yes', value: 1 }],
+			// Controls the hourly or flat rate inputs
 			isFlatRate: false,
+			// Controls the visibility of the parts form
 			showPartsForm: false,
+			// Triggers the PARENT form to submit
 			doSaveForm: false
 		};
 	},
@@ -63421,10 +63425,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		job: function job(_job) {
 			// Populate the form for editing
 			if (_job) {
-				// Parse out parts for watching
-				/*for(let key in this.job.parts){
-    	this.parts.push(this.job.parts[key]);
-    }*/
 				__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateForm(this.form, _job);
 			}
 		},
@@ -63499,6 +63499,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			this.showPartsForm = false;
 		},
 		partAdded: function partAdded(part) {
+			console.log("part added");
 			// Make a unique key for the part
 			var uniqid = Math.round(new Date().valueOf() + Math.random());
 			// Add id to part
@@ -63526,7 +63527,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	created: function created() {
 		// Populate form with supplied job, if needed
 		if (this.job) {
-			// Parse out parts for watching
+			// Parse out parts for watching * WORKS
 			for (var key in this.job.parts) {
 				this.parts.push(this.job.parts[key]);
 			}
@@ -63967,7 +63968,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		addPart: function addPart() {
 			// Validate form
 			for (var field in this.form) {
-				if (field != 'id') {
+				if (field != 'id' && field != 'job_id') {
 					if (this.form[field].value == '') {
 						this.form[field].errors.push('Field is required.');
 						return false;
@@ -63980,7 +63981,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			for (var _field in this.form) {
 				part[_field] = this.form[_field].value;
 			}
-
 			this.$emit('part-added', part);
 		},
 		saved: function saved() {
@@ -65671,7 +65671,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			addPartsDialog: false,
 			markingComplete: false,
 			savingJob: false,
-			saveJob: false
+			saveJob: false,
+			addPart: false
 		};
 	},
 

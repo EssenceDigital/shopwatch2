@@ -45,6 +45,14 @@ class Controller extends BaseController
     	return $model;
     }
 
+    /**
+  	 * Provides a simple interface to access basic where and where between db filters
+  	 *
+  	 * @param $query - The start of the query Model::[with, orderBy, etc.]
+  	 * @param $whereFields - Array - ['filter', 'field', 'value' 'conditional']
+  	 * @param $whereBetweenFields - Array - ['first => ['field', 'value'], 'second' => ['field', 'value']]
+  	 * @return $collection - Result of the query
+  	*/
     protected function genericFilter($query, $whereFields, $whereBetweenFields = false)
     {
 	    // Array to hold where clauses

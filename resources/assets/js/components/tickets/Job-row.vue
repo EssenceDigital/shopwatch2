@@ -230,7 +230,8 @@
 				addPartsDialog: false,
 				markingComplete: false,
 				savingJob: false,
-				saveJob: false
+				saveJob: false,
+				addPart: false
 			}
 		},
 

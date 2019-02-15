@@ -1,15 +1,21 @@
+/*
+ * Adds or update a job and associated parts
+*/
 <template>
 	<v-layout row>
+		<!-- Column holds the title and form -->
 		<v-flex xs6>
 			<v-card>
 				<v-card-title>
-
 					<h3 class="headline">
 						<v-icon left>description</v-icon>
 						Details
 					</h3>
 				</v-card-title>
 				<v-divider></v-divider>
+				<!--
+					Uses PARENT FORM to perform submissions
+				-->
 				<parent-form
 					:save-form="doSaveForm"
 					:action="action"
@@ -33,14 +39,16 @@
 				 			v-model="form.description.value"
 				 			:error-messages="form.description.errors"
 				    ></v-textarea>
-
-						<!-- Flat rate our hourly job -->
+						<!--
+							Flat rate our hourly job - only shows when adding new job.
+							Determines whether hourly or flat rate inputs show
+						-->
 						<v-checkbox
 							v-if="!editState"
 							label="Flat Rate Job"
 							v-model="isFlatRate"
 						></v-checkbox>
-						<!-- Hourly job -->
+						<!-- Hourly job inputs -->
 						<v-layout row v-if="!form.is_flat_rate.value">
 					    <v-flex xs4 class="pr-2">
 								<v-text-field
@@ -63,7 +71,7 @@
 						    ></v-text-field>
 					    </v-flex>
 						</v-layout>
-						<!-- Flat rate job -->
+						<!-- Flat rate job inputs -->
 						<v-layout row v-if="form.is_flat_rate.value">
 							<v-flex xs4 class="pr-2">
 								<v-text-field
@@ -86,6 +94,7 @@
 								></v-text-field>
 							</v-flex>
 						</v-layout>
+						<!-- Technician -->
 						<v-layout row>
 							<v-flex xs8>
 								<!-- Tech -->
@@ -100,11 +109,13 @@
 					      ></v-select>
 							</v-flex>
 						</v-layout>
-
 					</template>
 				</parent-form>
 			</v-card>
 		</v-flex>
+		<!--
+			Parts column
+		-->
 		<v-flex xs6 class="pl-3">
 			<v-card v-if="!isFlatRate">
 				<v-card-title>
@@ -113,7 +124,6 @@
 						Parts
 					</h3>
 					<v-spacer></v-spacer>
-					<!-- Show add part form -->
 					<v-tooltip left v-if="!showPartsForm">
 						<v-btn
 							slot="activator"
@@ -136,12 +146,12 @@
 						</v-btn>
 						<span>Hide form</span>
 					</v-tooltip>
-
 				</v-card-title>
 				<v-divider></v-divider>
-
+				<!--
+					Part form - Only show when showPartsFrom is FALSE
+				-->
 				<v-card-text v-if="!showPartsForm" class="ml-1 mr-1">
-
 					<v-container
 						v-for="part in parts"
 						:key="part.id"
@@ -182,8 +192,8 @@
 									</v-btn>
 									<span>Edit part</span>
 								</v-tooltip>
-
 							</v-flex>
+							<!-- Remove part column -->
 							<v-flex xs1 class="text-xs-right">
 								<v-tooltip top>
 									<v-btn
@@ -195,33 +205,23 @@
 									</v-btn>
 									<span>Remove part</span>
 								</v-tooltip>
-
 							</v-flex>
-
-
 						</v-layout>
 						<v-divider></v-divider>
 					</v-container>
-
-
 				</v-card-text>
-
+				<!--
+					List of parts - Only shows when showPartsForm is TRUE
+				-->
 				<v-card-text v-if="showPartsForm">
 					<job-parts-form
 						:job="job.id"
 						@part-added="partAdded"
 					></job-parts-form>
 				</v-card-text>
-
 			</v-card>
-
-
 		</v-flex>
-
 	</v-layout>
-
-
-
 </template>
 
 <script>
@@ -229,12 +229,12 @@
 	import PartsForm from './Job-parts-form';
 	import Helpers from './../../app/helpers';
 
-
 	export default{
 		props: ['action', 'job', 'workOrder', 'editState', 'shopRate', 'saveForm'],
 
 		data (){
 			return {
+				// Form inputs
 				form: {
 					id: {value: '', errors: []},
 					work_order_id: {value: '', errors: []},
@@ -249,18 +249,20 @@
 					parts: {value: {}, errors: []},
 					tech_id: {value: '', errors: []}
 				},
+				// Holds the list of parts objects before form submission
+				// This seperate prop is required so the array is properly 'watched'
 				parts: [],
-				completeSelect: [
-					{ text: 'No', value: 0 },
-					{ text: 'Yes', value: 1 }
-				],
+				// Controls the hourly or flat rate inputs
 				isFlatRate: false,
+				// Controls the visibility of the parts form
 				showPartsForm: false,
+				// Triggers the PARENT form to submit
 				doSaveForm: false
 			}
 		},
 
 		computed: {
+			// List of technicians for select list
 			techSelect (){
 				if(!this.form.is_flat_rate.value){
 					return this.$store.getters.techSelect;
@@ -271,30 +273,27 @@
 		},
 
 		watch: {
+			// When job is updated, populate form with job data
 			job (job){
 				// Populate the form for editing
 				if(job){
-					// Parse out parts for watching
-					/*for(let key in this.job.parts){
-						this.parts.push(this.job.parts[key]);
-					}*/
 					Helpers.populateForm(this.form, job);
 				}
 			},
-
+			// When the workOrder (id) is updated, add the id value to the form
 			workOrder (id){
 				// Set WO ID
 				if(id){
 					this.form.work_order_id.value = id;
 				}
 			},
-
+			// When the shopRate is updated, add the value to the form
 			shopRate (rate){
 				if(rate){
 					this.form.shop_rate.value = rate;
 				}
 			},
-
+			// Determines whether to show hourly or flat rate inputs - Updates flat_rate in form
 			isFlatRate (bool){
 				if(!bool){
 					this.form.is_flat_rate.value = bool;
@@ -304,6 +303,8 @@
 				}
 			},
 
+			// Parses any added parts and adds them to the 'parts' property in the form, then
+			// triggers the parent form to submit
 			saveForm (bool){
 				if(bool){
 					this.form.parts.value = {};
@@ -317,7 +318,6 @@
 					this.doSaveForm = false;
 				}
 			}
-
 		},
 
 		components: {
@@ -327,12 +327,11 @@
 
 		methods: {
 
+			// Runs when form submission is complete
 			saved (){
-				// Reset parts parse
-				//this.parts = [];
-				// Clear form for non edit
+				// Clear form for non edit states
 				if(! this.editState){
-					// Clear form
+					// Clear form, with default values inputed
 					Helpers.clearForm(this.form, 'work_order_id', {
 						// Default values
 						is_premade: false,
@@ -349,15 +348,16 @@
 				// Notify parent component
 				this.$emit('saved');
 			},
-
+			// Runs when the form submission returns errors
 			failed (errors){
+				// Populate errors in the form
 				Helpers.populateFormErrors(this.form, errors);
 			},
-
+			// Hides the parts form
 			hidePartsForm (){
 				this.showPartsForm = false;
 			},
-
+			// Adds a part to the 'local' parts data prop
 			partAdded (part){
 				// Make a unique key for the part
 				var uniqid = Math.round(new Date().valueOf() + Math.random());
@@ -368,7 +368,7 @@
 				// Hide form
 				this.showPartsForm = false;
 			},
-
+			// Removes a part from the 'local' parts data prop
 			removePart (id){
 				this.parts.forEach((part) => {
 					// If id match, delete from array
@@ -385,16 +385,18 @@
 		created (){
 			// Populate form with supplied job, if needed
 			if(this.job){
-				// Parse out parts for watching
+				// Parse out parts and add them to the 'local' parts prop
+				// Required for proper 'watching' *** WORKS
 				for(let key in this.job.parts){
 					this.parts.push(this.job.parts[key]);
 				}
+				// Populate form (edit state)
 				Helpers.populateForm(this.form, this.job);
 			} else {
-				// If not an edit job, apply the default shop rate
+				// Not edit state then apply the default shop rate
 				this.form.shop_rate.value = this.shopRate;
 			}
-			// Set WO ID
+			// Set work order id in form
 			if(this.workOrder){
 				this.form.work_order_id.value = this.workOrder;
 			}

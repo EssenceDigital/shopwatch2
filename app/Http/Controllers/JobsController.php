@@ -14,22 +14,22 @@ Use App\BusSetting;
 
 class JobsController extends Controller
 {
-
 	/**
-	 * Calculates and sets the totals that will be saved in a job.
-	 * Merges new values with the supplied request so it can be easily saved into a model.
+	 * Calculates labour, tech pay totals and populates totals and related fields in a job model
 	 *
 	 * @param $request - The job request
-	 * @param $job - The parent job. Should be set when a job has been updated.
-	 * @return The merged request
+	 * @param $job - A job model
+	 * @return $job - Populated job model
 	*/
 	private function calculateLabourTotals($request, $job)
 	{
 		// Get the tech (user) first
 		$tech = User::findOrFail($request->tech_id);
-		//
-		// For regular hourly jobs
-		//
+
+		/*
+		 * For regular hourly jobs use the shop rate and total hours to calculate
+		 * labour and tech pay totals
+		*/
 		if(! $request->is_flat_rate){
 			// If a shop rate was with the request then assign that
 			if($request->has('shop_rate')){
@@ -39,23 +39,24 @@ class JobsController extends Controller
 				// No shop rate present in request then get the current shop rate from business settings
 				$shop_rate = BusSetting::findOrFail(1)->shop_rate;
 			}
-			// Calculate the current labour total
+			// Calculate the labour total
 			$labour_total = round((floatval($request->hours) * floatval($shop_rate)), 3);
-			// Calculate the current tech pay total
+			// Calculate the tech pay total
 			$tech_pay_total = round(floatval($request->hours) * floatval($tech->hourly_wage), 3);
+
 		} else {
-			//
-			// For flat rate Jobs
-			//
+			/*
+			 * For flat rate jobs assign the flat rate total as the labour total
+			*/
 			$labour_total = round(floatval($request->flat_rate), 3);
 		}
 
 		// Add labour total to grand total
 		$grand_total = floatval($job->job_grand_total) + floatval($labour_total);
 
-		//
-		// For regular hourly Jobs
-		//
+		/*
+		 * Populate job model for hourly jobs
+		*/
 		if(! $request->is_flat_rate){
 			$job->tech = $tech->name;
 			$job->tech_id = $tech->id;
@@ -66,9 +67,9 @@ class JobsController extends Controller
 			$job->job_labour_total = $labour_total;
 			$job->job_grand_total = $grand_total;
 		} else {
-			//
-			// For flat rate Jobs
-			//
+			/*
+			 * Populate job model for flat rate jobs
+			*/
 			$job->tech = $tech->name;
 			$job->tech_id = $tech->id;
 			$job->flat_rate = $request->flat_rate;
@@ -80,6 +81,14 @@ class JobsController extends Controller
 		return $job;
 	}
 
+	/**
+	 * Completes the population of a job model including parsing out all parts and
+	 * delegating the calculation of parts totals and adding to the job model
+	 *
+	 * @param $job - A job model
+	 * @param $request - The job request
+	 * @return $job - Populated job model
+	*/
 	private function prepJobForSave($job, $request)
 	{
 		$job->work_order_id = $request->work_order_id;
@@ -117,7 +126,8 @@ class JobsController extends Controller
 	}
 
 	/**
-	 * Create a new job in the db associated with a work order.
+	 * Create a new job and associated parts in the db
+	 * Parts are stored in the db as JSON in the parts field.
 	 * Only creates the job if the parent work order is open.
 	 *
 	 * @param $request - SaveJob custom request
@@ -143,7 +153,8 @@ class JobsController extends Controller
 	}
 
 	/**
-	 * Update an existing job in the db associated with a work order.
+	 * Update an existing job and associated parts in the db
+	 * Parts are stored in the db as JSON in the parts field.
 	 * Only updates the job if the parent work order is open.
 	 *
 	 * @param $request - UpdateJob custom request
@@ -163,7 +174,6 @@ class JobsController extends Controller
 			$job->job_grand_total = 0;
 			// Calclate job totals
 			$job = $this->prepJobForSave($job, $request);
-
 			// Save job
 			$job = $this->genericSave($job);
 
@@ -171,14 +181,20 @@ class JobsController extends Controller
 			return WorkOrder::with(['customer', 'vehicle', 'jobs'])->findOrFail($job->work_order_id);
 		} else {
     		// Failed response
-	        return response()->json($this->woGuardResponse, 422);
+	      return response()->json($this->woGuardResponse, 422);
 		}
 	}
 
+	/**
+	 * Flags the specified job as complete in the db
+	 *
+	 * @param $id - The id of the job to remove
+	 * @return Int - The id of the removed job
+	*/
 	public function markComplete(CompleteJob $request)
 	{
 		// Get the job
-		$job = Job::with(['parts'])->findOrFail($request->id);
+		$job = Job::findOrFail($request->id);
 
 		// Check if parent work order is still open (can only modify a part on an open (not invoiced) work order)
 		if($this->ensureWorkOrderIsOpen($job->work_order_id)){

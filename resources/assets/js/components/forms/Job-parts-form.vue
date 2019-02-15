@@ -140,7 +140,7 @@
 			addPart (){
 				// Validate form
 				for(let field in this.form){
-					if(field != 'id'){
+					if(field != 'id' && field != 'job_id'){
 						if(this.form[field].value == ''){
 							this.form[field].errors.push('Field is required.');
 							return false;
@@ -153,7 +153,6 @@
 				for(let field in this.form){
 					part[field] = this.form[field].value;
 				}
-
 				this.$emit('part-added', part);
 			},
 
