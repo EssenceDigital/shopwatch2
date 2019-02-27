@@ -14,12 +14,22 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    /**
+    * A common response, cached for ease of use
+    */
     protected $woGuardResponse = [
 	    'result' => 'error',
 	    'message' => "This work order is either closed (invoiced), or the requested job has been marked complete. It cannot be modified. If the job must me modified try changing it's status to active"
     ];
 
-    protected function genericSave($model, $request = false, $beforeSave = null, $afterSave = null)
+    /**
+  	 * Provides a simple interface to fill a model, save it or return errors, and pass back the model
+  	 *
+  	 * @param $model - A model
+  	 * @param $request - An optional request to fill the model with
+  	 * @return $model - The saved model
+  	*/
+    protected function genericSave($model, $request = false)
     {
     	/* Check if the before fill function should run
     	if(is_callable($beforeFill)){
@@ -86,16 +96,23 @@ class Controller extends BaseController
 	    return $collection;
     }
 
-    protected function genericRemove($model, $beforeRemove = null, $afterRemove = null)
+    /**
+  	 * Provides a simple interface to remove a model (record) or return an error, and return the id of
+     * the removed record.
+  	 *
+  	 * @param $model - A populated model
+  	 * @return $id - The id of the removed record
+  	*/
+    protected function genericRemove($model)
     {
     	// Cache id for later
     	$id = $model->id;
 
     	// Check if the before remove function should run
-    	if(is_callable($beforeRemove)){
+    	/*if(is_callable($beforeRemove)){
     		// Run before fremove function with model passed as a reference
     		call_user_func_array($beforeRemove, array(&$model));
-    	}
+    	}*/
 
     	// Remove the record, if a problem with removal then return a failed response
     	if(! $model->delete()){
@@ -107,10 +124,10 @@ class Controller extends BaseController
     	}
 
     	// Check if the after remove function should run
-    	if(is_callable($afterRemove)){
+    	/*if(is_callable($afterRemove)){
     		// Run after remove function
     		call_user_func_array($afterRemove);
-    	}
+    	}*/
 
     	return $id;
     }
@@ -146,6 +163,13 @@ class Controller extends BaseController
       	return $job;
   	}
 
+    /**
+  	 * Ensures a work order is only accessible if it meets certain conditions.
+  	 *
+  	 * @param $work_order_id - id of the work order
+  	 * @param $job_is_complete - job completed flag
+  	 * @return Boolean
+  	*/
     protected function guardWorkOrder($work_order_id, $job_is_complete)
     {
     	if($this->ensureWorkOrderIsOpen($work_order_id)){
@@ -158,7 +182,7 @@ class Controller extends BaseController
     }
 
 	/**
-	 * Returns and error if the work order is closed (invoiced) and true if the work order is open (not invoiced)
+	 * Returns an error if the work order is closed (invoiced) and true if the work order is open (not invoiced)
 	 *
 	 * @param $work_order_id - The ID of the parent work order
 	 * @return Boolean or json error
@@ -177,6 +201,12 @@ class Controller extends BaseController
 	    }
 	}
 
+  /**
+	 * Returns true or false depending on the job completion flag
+	 *
+	 * @param $is_complete - The job completion flag
+	 * @return Boolean or json error
+	*/
 	protected function ensureJobIsNotComplete($is_complete)
 	{
 		if($is_complete){

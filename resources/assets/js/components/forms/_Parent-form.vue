@@ -10,7 +10,37 @@
       <v-form>
         <slot name="form-fields"></slot>
       </v-form>
-
+      <v-layout row>
+        <v-flex xs2>
+          <v-tooltip right v-if="editState">
+      			<v-btn slot="activator" icon @click="removeDialog = true">
+      				<v-icon color="error">delete_sweep</v-icon>
+      			</v-btn>
+            <span>Remove</span>
+          </v-tooltip>
+        </v-flex>
+      </v-layout>
+      <!-- Remove dialog -->
+      <v-dialog
+      	v-if="editState"
+      	v-model="removeDialog"
+      	persistent
+      	max-width="300px"
+      >
+        <v-card>
+          <v-card-text class="text-xs-center">
+            <v-alert color="error" outline :value="true">
+               Permanently remove this?
+            </v-alert>
+          </v-card-text>
+          <v-card-actions>
+          	<v-spacer></v-spacer>
+  					<v-btn flat @click.native="removeDialog = false">Cancel</v-btn>
+            <v-btn color="red darken-1" flat :loading="isRemoving" @click.native="remove">Remove</v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-card>
   </v-container>
 </template>

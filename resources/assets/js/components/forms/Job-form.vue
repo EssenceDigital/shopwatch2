@@ -127,7 +127,7 @@
 					<v-tooltip left v-if="!showPartsForm">
 						<v-btn
 							slot="activator"
-							@click="showPartsForm = true"
+							@click="openPartsForm"
 							icon
 						>
 							<v-icon color="teal">add_circle_outline</v-icon>
@@ -138,7 +138,7 @@
 					<v-tooltip left v-if="showPartsForm">
 						<v-btn
 							slot="activator"
-							@click="hidePartsForm"
+							@click="closePartsForm"
 							icon
 							class="mt-0"
 						>
@@ -148,8 +148,8 @@
 					</v-tooltip>
 				</v-card-title>
 				<v-divider></v-divider>
-				<!--
-					Part form - Only show when showPartsFrom is FALSE
+        <!--
+					List of parts - Only shows when showPartsForm is TRUE
 				-->
 				<v-card-text v-if="!showPartsForm" class="ml-1 mr-1">
 					<v-container
@@ -187,7 +187,10 @@
 							</v-flex>
 							<v-flex xs1 class="text-xs-right">
 								<v-tooltip top>
-									<v-btn slot="activator" icon>
+									<v-btn
+                    @click="editPart(part.id)"
+                    slot="activator"
+                    icon>
 										<v-icon>edit</v-icon>
 									</v-btn>
 									<span>Edit part</span>
@@ -210,11 +213,12 @@
 						<v-divider></v-divider>
 					</v-container>
 				</v-card-text>
-				<!--
-					List of parts - Only shows when showPartsForm is TRUE
+        <!--
+					Part form - Only show when showPartsFrom is FALSE
 				-->
 				<v-card-text v-if="showPartsForm">
 					<job-parts-form
+            :part="selectedPart"
 						:job="job.id"
 						@part-added="partAdded"
 					></job-parts-form>
@@ -252,6 +256,8 @@
 				// Holds the list of parts objects before form submission
 				// This seperate prop is required so the array is properly 'watched'
 				parts: [],
+
+        selectedPart: {},
 				// Controls the hourly or flat rate inputs
 				isFlatRate: false,
 				// Controls the visibility of the parts form
@@ -275,10 +281,19 @@
 		watch: {
 			// When job is updated, populate form with job data
 			job (job){
+        // Reset parts cache so there is not duplicates
+        this.parts = [];
+        console.log('Populate parts from watch...');
+        // Parse out parts and add them to the 'local' parts prop
+				// Required for proper 'watching' *** WORKS
+				for(let key in this.job.parts){
+					this.parts.push(this.job.parts[key]);
+				}
 				// Populate the form for editing
 				if(job){
 					Helpers.populateForm(this.form, job);
 				}
+
 			},
 			// When the workOrder (id) is updated, add the id value to the form
 			workOrder (id){
@@ -342,6 +357,8 @@
 						shop_rate: this.shopRate,
 						parts: {}
 					});
+          // Reset the temp parts cache
+          this.parts = [];
 				}
 				// Clear form errors
 				Helpers.clearFormErrors(this.form);
@@ -353,18 +370,42 @@
 				// Populate errors in the form
 				Helpers.populateFormErrors(this.form, errors);
 			},
+      // Open the parts form
+      openPartsForm (){
+        // Clear the selected part
+        this.selectedPart = {};
+        // Toggle flag
+        this.showPartsForm = true;
+      },
 			// Hides the parts form
-			hidePartsForm (){
+			closePartsForm (){
 				this.showPartsForm = false;
 			},
 			// Adds a part to the 'local' parts data prop
 			partAdded (part){
-				// Make a unique key for the part
-				var uniqid = Math.round(new Date().valueOf() + Math.random());
-				// Add id to part
-				part.id = uniqid;
-				// Add part to parts array in form
-				this.parts.push(part);
+        // If part has no id then its a newly added part
+        if(!part.id){
+          // Make a unique key for the part
+  				var uniqid = Math.round(new Date().valueOf() + Math.random());
+  				// Add id to part
+  				part.id = uniqid;
+          // Add part to parts array in form
+  				this.parts.push(part);
+        } else {
+          // If part has an id then edit that part
+          this.parts.forEach((prt) => {
+  					// If id match, delete from array
+  					if(prt.id == part.id){
+  						// Get the index for removal
+  						var index = Helpers.pluckObjectById(this.parts, 'id', part.id);
+  						// Remove
+  						this.parts.splice(index, 1);
+              // Readd update part at same index
+              this.parts.splice(index, 0, part);
+  					}
+  				});
+        }
+
 				// Hide form
 				this.showPartsForm = false;
 			},
@@ -379,12 +420,26 @@
 						this.parts.splice(index, 1);
 					}
 				});
-			}
+			},
+      editPart (id){
+        this.parts.forEach((part) => {
+					// If id match, set the selectedPart
+					if(part.id == id){
+						// Get the index of part in parts
+						var index = Helpers.pluckObjectById(this.parts, 'id', id);
+						// Set selected part
+						this.selectedPart = this.parts[index];
+					}
+				});
+        // Show form
+        this.showPartsForm = true;
+      }
 		},
 
 		created (){
 			// Populate form with supplied job, if needed
 			if(this.job){
+        console.log('Populating parts from created...');
 				// Parse out parts and add them to the 'local' parts prop
 				// Required for proper 'watching' *** WORKS
 				for(let key in this.job.parts){

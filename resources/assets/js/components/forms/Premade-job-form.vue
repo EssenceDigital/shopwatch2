@@ -97,6 +97,7 @@
 					flat_rate_cost: 0,
           parts: {
             filter: {
+              id: "filter",
               title: 'Filter',
     					part_number: '',
     					supplier: 'C.E.P.',
@@ -105,6 +106,7 @@
     					billing_price: 7.99,
             },
             oil: {
+              id: "oil",
               title: 'Oil',
               part_number: '',
               supplier: 'Auto Value',

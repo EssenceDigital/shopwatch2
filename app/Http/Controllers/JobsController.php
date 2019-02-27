@@ -97,15 +97,12 @@ class JobsController extends Controller
 		$job->is_flat_rate = $request->is_flat_rate;
 		$job->is_premade = $request->is_premade;
 
-		// Tally parts totals if there is parts
-		if(count($request->parts) > 0){
-			// Add parts from request to job - request must be formatted properly
-			$job->parts = $request->parts;
-			// Tally parts totals and update corresponding job totals
-			foreach($request->parts as $part){
-				// Update totals in job as we go
-				$job = $this->calculatePartsTotals($part, $job);
-			}
+		// Add parts from request to job - request must be formatted properly
+		$job->parts = $request->parts;
+		// Tally parts totals and update corresponding job totals
+		foreach($request->parts as $part){
+			// Update totals in job as we go
+			$job = $this->calculatePartsTotals($part, $job);
 		}
 
 		// Next, tally labour totals and update job totals

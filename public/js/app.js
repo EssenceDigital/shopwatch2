@@ -63374,6 +63374,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -63400,7 +63404,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				tech_id: { value: '', errors: [] }
 			},
 			// Holds the list of parts objects before form submission
+			// This seperate prop is required so the array is properly 'watched'
 			parts: [],
+
+			selectedPart: {},
 			// Controls the hourly or flat rate inputs
 			isFlatRate: false,
 			// Controls the visibility of the parts form
@@ -63412,6 +63419,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 	computed: {
+		// List of technicians for select list
 		techSelect: function techSelect() {
 			if (!this.form.is_flat_rate.value) {
 				return this.$store.getters.techSelect;
@@ -63422,23 +63430,38 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	watch: {
+		// When job is updated, populate form with job data
 		job: function job(_job) {
+			// Reset parts cache so there is not duplicates
+			this.parts = [];
+			console.log('Populate parts from watch...');
+			// Parse out parts and add them to the 'local' parts prop
+			// Required for proper 'watching' *** WORKS
+			for (var key in this.job.parts) {
+				this.parts.push(this.job.parts[key]);
+			}
 			// Populate the form for editing
 			if (_job) {
 				__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateForm(this.form, _job);
 			}
 		},
+
+		// When the workOrder (id) is updated, add the id value to the form
 		workOrder: function workOrder(id) {
 			// Set WO ID
 			if (id) {
 				this.form.work_order_id.value = id;
 			}
 		},
+
+		// When the shopRate is updated, add the value to the form
 		shopRate: function shopRate(rate) {
 			if (rate) {
 				this.form.shop_rate.value = rate;
 			}
 		},
+
+		// Determines whether to show hourly or flat rate inputs - Updates flat_rate in form
 		isFlatRate: function isFlatRate(bool) {
 			if (!bool) {
 				this.form.is_flat_rate.value = bool;
@@ -63447,6 +63470,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 				this.form.tech_id.value = 1;
 			}
 		},
+
+
+		// Parses any added parts and adds them to the 'parts' property in the form, then
+		// triggers the parent form to submit
 		saveForm: function saveForm(bool) {
 			var _this = this;
 
@@ -63470,12 +63497,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 	},
 
 	methods: {
+
+		// Runs when form submission is complete
 		saved: function saved() {
-			// Reset parts parse
-			//this.parts = [];
-			// Clear form for non edit
+			// Clear form for non edit states
 			if (!this.editState) {
-				// Clear form
+				// Clear form, with default values inputed
 				__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].clearForm(this.form, 'work_order_id', {
 					// Default values
 					is_premade: false,
@@ -63486,57 +63513,112 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 					shop_rate: this.shopRate,
 					parts: {}
 				});
+				// Reset the temp parts cache
+				this.parts = [];
 			}
 			// Clear form errors
 			__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].clearFormErrors(this.form);
 			// Notify parent component
 			this.$emit('saved');
 		},
+
+		// Runs when the form submission returns errors
 		failed: function failed(errors) {
+			// Populate errors in the form
 			__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateFormErrors(this.form, errors);
 		},
-		hidePartsForm: function hidePartsForm() {
+
+		// Open the parts form
+		openPartsForm: function openPartsForm() {
+			// Clear the selected part
+			this.selectedPart = {};
+			// Toggle flag
+			this.showPartsForm = true;
+		},
+
+		// Hides the parts form
+		closePartsForm: function closePartsForm() {
 			this.showPartsForm = false;
 		},
+
+		// Adds a part to the 'local' parts data prop
 		partAdded: function partAdded(part) {
-			console.log("part added");
-			// Make a unique key for the part
-			var uniqid = Math.round(new Date().valueOf() + Math.random());
-			// Add id to part
-			part.id = uniqid;
-			// Add part to parts array in form
-			this.parts.push(part);
+			var _this2 = this;
+
+			// If part has no id then its a newly added part
+			if (!part.id) {
+				// Make a unique key for the part
+				var uniqid = Math.round(new Date().valueOf() + Math.random());
+				// Add id to part
+				part.id = uniqid;
+				// Add part to parts array in form
+				this.parts.push(part);
+			} else {
+				// If part has an id then edit that part
+				this.parts.forEach(function (prt) {
+					// If id match, delete from array
+					if (prt.id == part.id) {
+						// Get the index for removal
+						var index = __WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].pluckObjectById(_this2.parts, 'id', part.id);
+						// Remove
+						_this2.parts.splice(index, 1);
+						// Readd update part at same index
+						_this2.parts.splice(index, 0, part);
+					}
+				});
+			}
+
 			// Hide form
 			this.showPartsForm = false;
 		},
+
+		// Removes a part from the 'local' parts data prop
 		removePart: function removePart(id) {
-			var _this2 = this;
+			var _this3 = this;
 
 			this.parts.forEach(function (part) {
 				// If id match, delete from array
 				if (part.id == id) {
 					// Get the index for removal
-					var index = __WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].pluckObjectById(_this2.parts, 'id', id);
+					var index = __WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].pluckObjectById(_this3.parts, 'id', id);
 					// Remove
-					_this2.parts.splice(index, 1);
+					_this3.parts.splice(index, 1);
 				}
 			});
+		},
+		editPart: function editPart(id) {
+			var _this4 = this;
+
+			this.parts.forEach(function (part) {
+				// If id match, set the selectedPart
+				if (part.id == id) {
+					// Get the index of part in parts
+					var index = __WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].pluckObjectById(_this4.parts, 'id', id);
+					// Set selected part
+					_this4.selectedPart = _this4.parts[index];
+				}
+			});
+			// Show form
+			this.showPartsForm = true;
 		}
 	},
 
 	created: function created() {
 		// Populate form with supplied job, if needed
 		if (this.job) {
-			// Parse out parts for watching * WORKS
+			console.log('Populating parts from created...');
+			// Parse out parts and add them to the 'local' parts prop
+			// Required for proper 'watching' *** WORKS
 			for (var key in this.job.parts) {
 				this.parts.push(this.job.parts[key]);
 			}
+			// Populate form (edit state)
 			__WEBPACK_IMPORTED_MODULE_2__app_helpers__["a" /* default */].populateForm(this.form, this.job);
 		} else {
-			// If not an edit job, apply the default shop rate
+			// Not edit state then apply the default shop rate
 			this.form.shop_rate.value = this.shopRate;
 		}
-		// Set WO ID
+		// Set work order id in form
 		if (this.workOrder) {
 			this.form.work_order_id.value = this.workOrder;
 		}
@@ -63596,6 +63678,36 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -63755,7 +63867,134 @@ var render = function() {
   return _c(
     "v-container",
     { attrs: { fluid: "" } },
-    [_c("v-form", [_vm._t("form-fields")], 2)],
+    [
+      _c("v-form", [_vm._t("form-fields")], 2),
+      _vm._v(" "),
+      _c(
+        "v-layout",
+        { attrs: { row: "" } },
+        [
+          _c(
+            "v-flex",
+            { attrs: { xs2: "" } },
+            [
+              _vm.editState
+                ? _c(
+                    "v-tooltip",
+                    { attrs: { right: "" } },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { slot: "activator", icon: "" },
+                          on: {
+                            click: function($event) {
+                              _vm.removeDialog = true
+                            }
+                          },
+                          slot: "activator"
+                        },
+                        [
+                          _c("v-icon", { attrs: { color: "error" } }, [
+                            _vm._v("delete_sweep")
+                          ])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("span", [_vm._v("Remove")])
+                    ],
+                    1
+                  )
+                : _vm._e()
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _vm.editState
+        ? _c(
+            "v-dialog",
+            {
+              attrs: { persistent: "", "max-width": "300px" },
+              model: {
+                value: _vm.removeDialog,
+                callback: function($$v) {
+                  _vm.removeDialog = $$v
+                },
+                expression: "removeDialog"
+              }
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c(
+                    "v-card-text",
+                    { staticClass: "text-xs-center" },
+                    [
+                      _c(
+                        "v-alert",
+                        { attrs: { color: "error", outline: "", value: true } },
+                        [
+                          _vm._v(
+                            "\n             Permanently remove this?\n          "
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    [
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { flat: "" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.removeDialog = false
+                            }
+                          }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            color: "red darken-1",
+                            flat: "",
+                            loading: _vm.isRemoving
+                          },
+                          nativeOn: {
+                            click: function($event) {
+                              return _vm.remove($event)
+                            }
+                          }
+                        },
+                        [_vm._v("Remove")]
+                      ),
+                      _vm._v(" "),
+                      _c("v-spacer")
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        : _vm._e()
+    ],
     1
   )
 }
@@ -64434,7 +64673,7 @@ var render = function() {
                     _c("v-icon", { attrs: { left: "" } }, [
                       _vm._v("description")
                     ]),
-                    _vm._v("\n\t\t\t\t\tDetails\n\t\t\t\t")
+                    _vm._v("\n\t\t\t\t\t\tDetails\n\t\t\t\t\t")
                   ],
                   1
                 )
@@ -64690,7 +64929,7 @@ var render = function() {
                           _c("v-icon", { attrs: { left: "" } }, [
                             _vm._v("build")
                           ]),
-                          _vm._v("\n\t\t\t\t\tParts\n\t\t\t\t")
+                          _vm._v("\n\t\t\t\t\t\tParts\n\t\t\t\t\t")
                         ],
                         1
                       ),
@@ -64706,11 +64945,7 @@ var render = function() {
                                 "v-btn",
                                 {
                                   attrs: { slot: "activator", icon: "" },
-                                  on: {
-                                    click: function($event) {
-                                      _vm.showPartsForm = true
-                                    }
-                                  },
+                                  on: { click: _vm.openPartsForm },
                                   slot: "activator"
                                 },
                                 [
@@ -64737,7 +64972,7 @@ var render = function() {
                                 {
                                   staticClass: "mt-0",
                                   attrs: { slot: "activator", icon: "" },
-                                  on: { click: _vm.hidePartsForm },
+                                  on: { click: _vm.closePartsForm },
                                   slot: "activator"
                                 },
                                 [_c("v-icon", [_vm._v("clear")])],
@@ -64775,9 +65010,9 @@ var render = function() {
                                   _c("v-flex", { attrs: { xs3: "" } }, [
                                     _c("p", { staticClass: "pa-2 pt-3 mb-0" }, [
                                       _vm._v(
-                                        "\n\t\t\t\t\t\t\t\t" +
+                                        "\n\t\t\t\t\t\t\t\t\t" +
                                           _vm._s(part.part_number) +
-                                          "\n\t\t\t\t\t\t\t"
+                                          "\n\t\t\t\t\t\t\t\t"
                                       )
                                     ])
                                   ]),
@@ -64788,9 +65023,9 @@ var render = function() {
                                       { staticClass: "pt-2 pt-3 pb-2 mb-0" },
                                       [
                                         _vm._v(
-                                          "\n\t\t\t\t\t\t\t\t" +
+                                          "\n\t\t\t\t\t\t\t\t\t" +
                                             _vm._s(part.title) +
-                                            "\n\t\t\t\t\t\t\t"
+                                            "\n\t\t\t\t\t\t\t\t"
                                         )
                                       ]
                                     )
@@ -64810,9 +65045,9 @@ var render = function() {
                                         { staticClass: "pa-2 pt-3 mb-0" },
                                         [
                                           _vm._v(
-                                            "\n\t\t\t\t\t\t\t\t" +
+                                            "\n\t\t\t\t\t\t\t\t\t" +
                                               _vm._s(part.quantity) +
-                                              "\n\t\t\t\t\t\t\t"
+                                              "\n\t\t\t\t\t\t\t\t"
                                           )
                                         ]
                                       )
@@ -64831,13 +65066,13 @@ var render = function() {
                                         { staticClass: "pa-2 pt-3 mb-0" },
                                         [
                                           _vm._v(
-                                            "\n\t\t\t\t\t\t\t\t[" +
+                                            "\n\t\t\t\t\t\t\t\t\t[" +
                                               _vm._s(
                                                 _vm._f("money")(
                                                   part.billing_price
                                                 )
                                               ) +
-                                              "]\n\t\t\t\t\t\t\t"
+                                              "]\n\t\t\t\t\t\t\t\t"
                                           )
                                         ]
                                       )
@@ -64856,14 +65091,14 @@ var render = function() {
                                         { staticClass: "pa-2 pt-3 mb-0" },
                                         [
                                           _vm._v(
-                                            "\n\t\t\t\t\t\t\t\t" +
+                                            "\n\t\t\t\t\t\t\t\t\t" +
                                               _vm._s(
                                                 _vm._f("money")(
                                                   part.billing_price *
                                                     part.quantity
                                                 )
                                               ) +
-                                              "\n\t\t\t\t\t\t\t"
+                                              "\n\t\t\t\t\t\t\t\t"
                                           )
                                         ]
                                       )
@@ -64887,6 +65122,11 @@ var render = function() {
                                               attrs: {
                                                 slot: "activator",
                                                 icon: ""
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  _vm.editPart(part.id)
+                                                }
                                               },
                                               slot: "activator"
                                             },
@@ -64955,7 +65195,7 @@ var render = function() {
                         "v-card-text",
                         [
                           _c("job-parts-form", {
-                            attrs: { job: _vm.job.id },
+                            attrs: { part: _vm.selectedPart, job: _vm.job.id },
                             on: { "part-added": _vm.partAdded }
                           })
                         ],
@@ -65135,6 +65375,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         flat_rate_cost: 0,
         parts: {
           filter: {
+            id: "filter",
             title: 'Filter',
             part_number: '',
             supplier: 'C.E.P.',
@@ -65143,6 +65384,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             billing_price: 7.99
           },
           oil: {
+            id: "oil",
             title: 'Oil',
             part_number: '',
             supplier: 'Auto Value',
