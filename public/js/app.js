@@ -63096,6 +63096,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			this.savingJob = false;
 			this.saveJob = false;
 			this.addJobDialog = false;
+			this.premadeJobDialog = false;
 			this.premadeJob = '';
 		},
 		addPremadeJob: function addPremadeJob(job) {
@@ -65423,14 +65424,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.lofOptions.weight = '';
       this.lofOptions.filter = '';
     },
-    addLof: function addLof() {
+    addRegLof: function addRegLof() {
       // Set lof options for car/small SUV
       if (this.lofOptions.litres <= 5) {
         this.lof.title = 'Oil Change - Car/Minivan/Small SUV';
         this.lof.parts.filter.part_number = this.lofOptions.filter;
         this.lof.parts.oil.part_number = this.lofOptions.weight;
         this.lof.parts.oil.quantity = 5;
+      } else {
+        this.lof.title = 'Oil Change - Truck/Van/Large SUV';
+        this.lof.parts.filter.part_number = this.lofOptions.filter;
+        this.lof.parts.oil.part_number = this.lofOptions.weight;
+        this.lof.parts.oil.quantity = 8;
       }
+
       // Add oil litres and weight to description
       this.lof.description += this.lofOptions.litres + 'L/' + this.lofOptions.weight + '/' + this.lofOptions.filter;
       // Add end of description
@@ -65614,7 +65621,7 @@ var render = function() {
                         "v-btn",
                         {
                           attrs: { color: "teal", flat: "" },
-                          on: { click: _vm.addLof }
+                          on: { click: _vm.addRegLof }
                         },
                         [_vm._v("Confirm")]
                       )
@@ -66485,7 +66492,7 @@ var render = function() {
         [
           _c("v-spacer"),
           _vm._v(" "),
-          !_vm.job.is_flat_rate
+          !_vm.job.is_flat_rate && !_vm.job.is_premade
             ? _c(
                 "v-flex",
                 { staticClass: "text-xs-right", attrs: { xs3: "" } },
@@ -66511,7 +66518,7 @@ var render = function() {
               )
             : _vm._e(),
           _vm._v(" "),
-          !_vm.job.is_flat_rate
+          !_vm.job.is_flat_rate && !_vm.job.is_premade
             ? _c(
                 "v-flex",
                 { staticClass: "text-xs-right", attrs: { xs3: "" } },

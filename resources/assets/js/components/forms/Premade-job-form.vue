@@ -9,49 +9,49 @@
 
     <v-card-text>
 
-        <v-radio-group v-model="selectedJob" :mandatory="false">
-          <v-radio label="Oil Change" value="LOF"></v-radio>
-          <v-radio label="Detail" value="DTL"></v-radio>
-          <v-radio label="Mount and Balance Tires" value="MTB"></v-radio>
-        </v-radio-group>
+      <v-radio-group v-model="selectedJob" :mandatory="false">
+        <v-radio label="Oil Change" value="LOF"></v-radio>
+        <v-radio label="Detail" value="DTL"></v-radio>
+        <v-radio label="Mount and Balance Tires" value="MTB"></v-radio>
+      </v-radio-group>
 
-        <!-- Oil change options dialog -->
-        <v-dialog v-model="lofDialog" persistent max-width="500px">
-          <v-card>
-            <v-card-text>
-              <v-layout row>
-                <v-flex xs3>
-                  <v-text-field
-                    v-model="lofOptions.litres"
-                    type="number"
-                    min="3"
-                    step="0.1"
-                    label="Litres"
-                  ></v-text-field>
-                </v-flex>
-                <v-spacer></v-spacer>
-                <v-flex xs4>
-                  <v-text-field
-                    v-model="lofOptions.weight"
-                    label="Oil Weight"
-                  ></v-text-field>
-                </v-flex>
-                <v-spacer></v-spacer>
-                <v-flex xs4>
-                  <v-text-field
-                    v-model="lofOptions.filter"
-                    label="Oil Filter"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-card-text>
-            <v-card-actions>
+      <!-- Oil change options dialog -->
+      <v-dialog v-model="lofDialog" persistent max-width="500px">
+        <v-card>
+          <v-card-text>
+            <v-layout row>
+              <v-flex xs3>
+                <v-text-field
+                  v-model="lofOptions.litres"
+                  type="number"
+                  min="3"
+                  step="0.1"
+                  label="Litres"
+                ></v-text-field>
+              </v-flex>
               <v-spacer></v-spacer>
-              <v-btn @click="closeDialog('lofDialog')" flat>Cancel</v-btn>
-              <v-btn @click="addLof" color="teal" flat>Confirm</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+              <v-flex xs4>
+                <v-text-field
+                  v-model="lofOptions.weight"
+                  label="Oil Weight"
+                ></v-text-field>
+              </v-flex>
+              <v-spacer></v-spacer>
+              <v-flex xs4>
+                <v-text-field
+                  v-model="lofOptions.filter"
+                  label="Oil Filter"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn @click="closeDialog('lofDialog')" flat>Cancel</v-btn>
+            <v-btn @click="addRegLof" color="teal" flat>Confirm</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-card-text>
 
     <v-divider></v-divider>
@@ -144,17 +144,24 @@
         this.lofOptions.litres = '';
         this.lofOptions.weight = '';
         this.lofOptions.filter = '';
-
       },
 
-      addLof (){
+      addRegLof (){
         // Set lof options for car/small SUV
         if(this.lofOptions.litres <= 5){
           this.lof.title = 'Oil Change - Car/Minivan/Small SUV';
           this.lof.parts.filter.part_number = this.lofOptions.filter;
           this.lof.parts.oil.part_number = this.lofOptions.weight;
           this.lof.parts.oil.quantity = 5;
+        } else {
+          this.lof.title = 'Oil Change - Truck/Van/Large SUV';
+          this.lof.parts.filter.part_number = this.lofOptions.filter;
+          this.lof.parts.oil.part_number = this.lofOptions.weight;
+          this.lof.parts.oil.quantity = 8;
         }
+
+
+
         // Add oil litres and weight to description
         this.lof.description += this.lofOptions.litres + 'L/'
                               + this.lofOptions.weight + '/'

@@ -487,6 +487,7 @@
 				this.savingJob = false;
 				this.saveJob = false;
 				this.addJobDialog = false;
+				this.premadeJobDialog = false;
 				this.premadeJob = '';
 			},
 

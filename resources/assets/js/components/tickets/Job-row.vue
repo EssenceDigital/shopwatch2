@@ -181,7 +181,7 @@
 		<v-layout row>
 			<v-spacer></v-spacer>
 			<v-flex
-				v-if="!job.is_flat_rate"
+				v-if="!job.is_flat_rate && !job.is_premade"
 				xs3
 				class="text-xs-right"
 			>
@@ -191,7 +191,7 @@
 				</p>
 			</v-flex>
 			<v-flex
-				v-if="!job.is_flat_rate"
+				v-if="!job.is_flat_rate && !job.is_premade"
 				xs3
 				class="text-xs-right"
 			>
